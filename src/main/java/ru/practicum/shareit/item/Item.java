@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 
 import lombok.Data;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 @Data
@@ -12,6 +13,6 @@ public class Item {
     private Boolean available;
 
     private User owner;
-    private Long userId;
-    private String url;
+    private ItemRequest request;
+
 }
