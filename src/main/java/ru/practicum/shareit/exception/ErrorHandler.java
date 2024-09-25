@@ -52,4 +52,14 @@ public class ErrorHandler {
     }
 
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleServerError(final InternalServerException e) {
+        return new ErrorResponse(
+                "Ошибка с входным параметром.",
+                e.getMessage()
+        );
+    }
+
+
 }

@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.Collection;
@@ -17,7 +17,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final UserStorage userStorage = new UserInMemoryStorage();
+    @Autowired
+    private final UserStorage userStorage;
 
     @Override
     public Collection<User> getUsers() {
