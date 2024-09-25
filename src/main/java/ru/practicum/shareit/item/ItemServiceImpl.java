@@ -41,18 +41,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<Item> create(Item item, Long userId) {
+    public Optional<Item> create(Item item, String userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
-
-        //userStorage.findById(userId);
-        if (userStorage.getUsers().containsKey(userId)) {
-            User user = userStorage.findById(userId).get();
+        if (!isNumeric(userId))
+        {
+            throw new ValidationException("UserId не корректный");
+        }
+        long id = Long.parseLong(userId);
+        if (userStorage.getUsers().containsKey(id)) {
+            User user = userStorage.findById(id).get();
             item.setOwner(user);
             final Item itemStored = itemStorage.save(item);
             log.info("Created new item: {}", itemStored);
             return Optional.of(itemStored);
         }
-        throw new IncorrectParameterException("Пользователь с Id = " + userId + " не существует");
+        throw new NotFoundException("Пользователь с Id = " + id + " не существует");
        }
 
     @Override
@@ -61,7 +64,42 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<Item> update(UpdateItemDto item, Long itemId) {
-        return Optional.empty();
+    public Optional<Item> update(UpdateItemDto item, String itemId, String userId) {
+        Objects.requireNonNull(item, "Cannot create item: is null");
+        if (!isNumeric(itemId) || !isNumeric(userId)  )
+        {
+            throw new IncorrectParameterException("Данные не корректны");
+        }
+        Optional<Item> currentItem =  itemStorage.findById(Long.parseLong(itemId));
+        if (currentItem.isEmpty())
+        {
+            throw new NotFoundException("Item c id "+ itemId + "не найден");
+        }
+        if (currentItem.get().getOwner().getId() != Long.parseLong(userId))
+        {
+            throw new NotFoundException("Пользователь c id "+ userId + "не является владельцем Item с id " + itemId);
+        }
+        Item updateItem = currentItem.get();
+        if (item.getName() != null)
+            updateItem.setName(item.getName());
+        if (item.getDescription() != null)
+            updateItem.setDescription(item.getDescription());
+        if (item.getAvailable() != null)
+            updateItem.setAvailable(item.getAvailable());
+        final Item itemUpdated = itemStorage.update(updateItem);
+        log.info("Updated item: {}", itemUpdated);
+        return Optional.of(itemUpdated);
+    }
+
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            long d = Long.parseLong(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 }

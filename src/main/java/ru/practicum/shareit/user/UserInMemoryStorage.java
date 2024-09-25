@@ -31,7 +31,7 @@ public class UserInMemoryStorage implements UserStorage {
     @Override
     public Optional<User> findById(final long id) {
         if (users.containsKey(id))
-            return Optional.ofNullable(users.get(id));
+            return Optional.of(users.get(id));
         return Optional.empty();
     }
 

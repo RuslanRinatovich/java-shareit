@@ -12,18 +12,17 @@ import java.util.Optional;
 @Repository
 public class ItemInMemoryStorage implements ItemStorage {
 
-    private long lastUsedId;
     private final Map<Long, Item> items;
-
-    public Map<Long, Item> getItems() {
-        return items;
-    }
+    private long lastUsedId;
 
     public ItemInMemoryStorage() {
         this.items = new HashMap<>();
         this.lastUsedId = 0L;
     }
 
+    public Map<Long, Item> getItems() {
+        return items;
+    }
 
     public long getLastUsedId() {
         return lastUsedId;
@@ -37,6 +36,9 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public Optional<Item> findById(long id) {
+
+        if (items.containsKey(id))
+            return Optional.ofNullable(items.get(id));
         return Optional.empty();
     }
 
@@ -49,7 +51,8 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public Item update(Item item) {
-        return null;
+        items.put(item.getId(), item);
+        return item;
     }
 
     @Override

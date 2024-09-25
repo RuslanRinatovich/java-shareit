@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice("ru.yandex.practicum.shareit")
+@RestControllerAdvice("ru.practicum.shareit")
 public class ErrorHandler {
     // 500
 
@@ -19,8 +19,9 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResponse handleValidationExceptions(final MethodArgumentNotValidException e) {
         return new ErrorResponse(
                 "Возникло исключение",
@@ -51,7 +52,16 @@ public class ErrorHandler {
         );
     }
 
-
+    // 409
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflictException(final ConflictException e) {
+        return new ErrorResponse(
+                "Ошибка, нарушение уникальности email",
+                e.getMessage()
+        );
+    }
+    //500
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleServerError(final InternalServerException e) {

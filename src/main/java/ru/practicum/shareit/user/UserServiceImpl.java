@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.Collection;
@@ -43,7 +45,7 @@ public class UserServiceImpl implements UserService{
         Objects.requireNonNull(user, "Cannot create user: is null");
         Optional<User> userWithEmail = getUserByEmail(user.getEmail());
         if (userWithEmail.isPresent()) {
-            throw new ValidationException("Пользователь с email = " + user.getEmail() + " уже существует");
+            throw new ConflictException("Пользователь с email = " + user.getEmail() + " уже существует");
         }
         final User userStored = userStorage.save(user);
         log.info("Created new user: {}", userStored);

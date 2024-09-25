@@ -12,9 +12,9 @@ public interface ItemService {
 
         Optional<Item> getItem(Long itemId);
 
-        Optional<Item>  create(Item item, Long userId);
+        Optional<Item>  create(Item item, String userId);
         void delete(Long itemId);
-        Optional<Item> update(UpdateItemDto item, Long itemId);
+        Optional<Item> update(UpdateItemDto item, String itemId, String userId);
 
     }
 
