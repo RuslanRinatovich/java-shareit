@@ -17,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final UserStorage userStorage;
+    private final UserStorage userStorage = new UserInMemoryStorage();
 
     @Override
     public Collection<User> getUsers() {
@@ -26,43 +26,69 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public Optional<User> getUser(final long userId) {
-        return userStorage.findById(userId);
+    public Optional<User> getUser(final String userId) {
+        if (!isNumeric(userId))
+            return Optional.of(new User());
+        return userStorage.findById(Long.parseLong(userId));
     }
 
 
     @Override
     public Optional<User> getUserByEmail(final String email) {
-
         return userStorage.findByEmail(email);
     }
     @Override
-    public User createUser(final User user) {
+    public Optional<User> createUser(final User user) {
         Objects.requireNonNull(user, "Cannot create user: is null");
-        Optional<User> user1 = getUserByEmail(user.getEmail());
-        if (user1.isPresent()) {
+        Optional<User> userWithEmail = getUserByEmail(user.getEmail());
+        if (userWithEmail.isPresent()) {
             throw new ValidationException("Пользователь с email = " + user.getEmail() + " уже существует");
         }
         final User userStored = userStorage.save(user);
         log.info("Created new user: {}", userStored);
-        return userStored;
+        return Optional.of(userStored);
     }
 
     @Override
-    public Optional<User> updateUser(final User user) {
+    public Optional<User>  updateUser(final User user, final String userId) {
         Objects.requireNonNull(user, "Cannot update user: is null");
-        final Optional<User> userStored = userStorage.update(user);
-        userStored.ifPresent(u -> log.info("Updated user: {}", u));
-        return userStored;
+        if (!isNumeric(userId))
+        {
+            throw new ValidationException("UserId не корректный");
+        }
+        user.setId(Long.parseLong(userId));
+        if (userStorage.getUsers().containsKey(user.getId())) {
+            Optional<User> u = getUserByEmail(user.getEmail());
+            User currentUser = userStorage.getUsers().get(user.getId());
+            if (u.isPresent() && u.get() != currentUser)
+            {
+                return Optional.empty();
+            }
+            if (user.getName() == null)
+                user.setName(currentUser.getName());
+            if (user.getEmail() == null)
+                user.setEmail(currentUser.getEmail());
+            return Optional.of(userStorage.update(user));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public void delete(Long userId) {
-        Optional<User> user = userStorage.findById(userId);
-        if (user.isEmpty()) {
-            log.warn("Пользователь с id = " + userId + " не найден");
-            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+    public void delete(String userId) {
+        if (isNumeric(userId))
+            userStorage.delete(Long.parseLong(userId));
+    }
+
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
         }
-        userStorage.delete(userId);
+        try {
+            long d = Long.parseLong(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 }

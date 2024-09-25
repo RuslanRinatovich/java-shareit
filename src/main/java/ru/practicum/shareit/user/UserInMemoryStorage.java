@@ -7,12 +7,22 @@ import java.util.*;
 @Repository
 public class UserInMemoryStorage implements UserStorage {
     private long lastUsedId;
+
+    public Map<Long, User> getUsers() {
+        return users;
+    }
+
+    public long getLastUsedId() {
+        return lastUsedId;
+    }
+
     private final Map<Long, User> users;
 
     public UserInMemoryStorage() {
         this.users = new HashMap<>();
         this.lastUsedId = 0L;
     }
+
     @Override
     public Collection<User> findAll() {
         return users.values();
@@ -27,8 +37,7 @@ public class UserInMemoryStorage implements UserStorage {
     public Optional<User> findByEmail(String email) {
         if (email == null)
             return Optional.empty();
-        for (User user: users.values())
-        {
+        for (User user : users.values()) {
             if (user.getEmail() == null)
                 continue;
             if (user.getEmail().equals(email))
@@ -39,21 +48,15 @@ public class UserInMemoryStorage implements UserStorage {
 
     @Override
     public User save(final User user) {
-        Objects.requireNonNull(user, "Cannot save user: is null");
         user.setId(++lastUsedId);
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public Optional<User> update(final User user) {
-        Objects.requireNonNull(user, "Cannot update user: is null");
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            return Optional.of(user);
-        } else {
-            return Optional.empty();
-        }
+    public User update(final User user) {
+        users.put(user.getId(), user);
+        return user;
     }
 
     @Override

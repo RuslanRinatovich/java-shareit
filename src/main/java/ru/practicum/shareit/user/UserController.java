@@ -4,14 +4,11 @@ package ru.practicum.shareit.user;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.IncorrectParameterException;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.NewUserDto;
+import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 import java.util.Collection;
 
@@ -23,6 +20,7 @@ import java.util.Collection;
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -38,35 +36,33 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable final String userId) {
         log.info("Received GET at /users/{}", userId);
-        final UserDto dto = userService.getUserByEmail(userId).map(UserMapper::mapToDto).orElseThrow(
-                () -> new NotFoundException("Пользователь с emailom = " + userId + " не найден")
-        );
-        log.info("Responded to GET /users/{}: {}", userId, dto);
-        return dto;
+        final UserDto user = UserMapper.mapToDto(userService.getUser(userId).get());
+        log.info("Responded to GET /users/{}: {}", userId, user);
+        return user;
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody final UserDto userDto) {
+    public UserDto createUser(@Valid @RequestBody final NewUserDto newUserDto) {
         log.info("Received POST at /users");
-        if (userDto.getEmail() == null) throw new IncorrectParameterException("Email должен быть указан");
-        final User user = UserMapper.mapToUser(userDto);
-        final UserDto newUserDto = UserMapper.mapToDto(userService.createUser(user));
-        log.info("Responded to POST /users: {}", newUserDto);
-        return newUserDto;
+        final User user = UserMapper.mapToUser(newUserDto);
+        final UserDto userDto = UserMapper.mapToDto(userService.createUser(user).get());
+        log.info("Responded to POST /users: {}", userDto);
+        return userDto;
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@Valid @RequestBody final UserUpdateDto updateUserDto,
-                           @PathVariable final String userId) {
-        log.info("Received PUT at /users");
-
-       return new User();
+    public UserDto updateUser(@Valid @RequestBody final UpdateUserDto updateUserDto, @PathVariable final String userId) {
+        log.info("Received PATCH at /users");
+        User user = UserMapper.updateUserMapToUser(updateUserDto);
+        final UserDto userDto = UserMapper.mapToDto(userService.updateUser(user, userId).get());
+        log.info("Responded to PATCH at /users: {}", userDto);
+        return userDto;
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteUser(@PathVariable(name = "id") final Long userId) {
-        if (userId == null) throw new IncorrectParameterException("Id должен быть указан");
+
+    public void deleteUser(@PathVariable(name = "id") final String userId) {
+
         userService.delete(userId);
     }
 
