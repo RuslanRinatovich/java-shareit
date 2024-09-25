@@ -6,9 +6,13 @@ import java.util.Optional;
 
 public interface UserStorage {
     Collection<User> findAll();
+
     Map<Long, User> getUsers();
+
     Optional<User> findById(long id);
+
     Optional<User> findByEmail(String email);
+
     User save(User user);
 
     User update(User user);
