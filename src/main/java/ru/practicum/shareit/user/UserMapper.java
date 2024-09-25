@@ -2,8 +2,9 @@ package ru.practicum.shareit.user;
 
 
 import ru.practicum.shareit.user.dto.NewUserDto;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
+import ru.practicum.shareit.user.dto.UserDto;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,11 +19,9 @@ public final class UserMapper {
         return dto;
     }
 
-    public static Collection<UserDto> mapToDto(Collection<User> users)
-    {
+    public static Collection<UserDto> mapToDto(Collection<User> users) {
         List<UserDto> dtos = new ArrayList<>();
-        for (User user: users)
-        {
+        for (User user : users) {
             dtos.add(mapToDto(user));
         }
         return dtos;

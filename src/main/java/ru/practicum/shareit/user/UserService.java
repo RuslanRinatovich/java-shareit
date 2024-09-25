@@ -8,10 +8,13 @@ public interface UserService {
     Collection<User> getUsers();
 
     Optional<User> getUser(String id);
+
     Optional<User> getUserByEmail(String email);
 
-    Optional<User>  createUser(User user);
+    Optional<User> createUser(User user);
+
     void delete(String userId);
-    Optional<User>  updateUser(User user, String Id);
+
+    Optional<User> updateUser(User user, String Id);
 
 }

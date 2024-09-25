@@ -2,11 +2,20 @@ package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class UserInMemoryStorage implements UserStorage {
+    private final Map<Long, User> users;
     private long lastUsedId;
+
+    public UserInMemoryStorage() {
+        this.users = new HashMap<>();
+        this.lastUsedId = 0L;
+    }
 
     public Map<Long, User> getUsers() {
         return users;
@@ -14,13 +23,6 @@ public class UserInMemoryStorage implements UserStorage {
 
     public long getLastUsedId() {
         return lastUsedId;
-    }
-
-    private final Map<Long, User> users;
-
-    public UserInMemoryStorage() {
-        this.users = new HashMap<>();
-        this.lastUsedId = 0L;
     }
 
     @Override

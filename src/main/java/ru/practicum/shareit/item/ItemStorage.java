@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ItemStorage {
 
-    Collection<Item> findAll();
+    Collection<Item> findAll(Long userId);
 
     Map<Long, Item> getItems();
 

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectParameterException;
-import ru.practicum.shareit.exception.InternalServerException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
@@ -15,6 +14,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,22 +29,50 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private final ItemStorage itemStorage;
 
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            long d = Long.parseLong(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
-    public Collection<Item> getItems() {
-        return null;
+    public Collection<Item> search(String text) {
+        if ((text == null) || text.isBlank() || text.isEmpty())
+            return new ArrayList<>();
+        return itemStorage.getItems().values().stream().filter(item ->
+                (item.getName().toLowerCase().contains(text) || item.getDescription().toLowerCase().contains(text))
+                        && item.getAvailable()).toList();
+    }
+
+    @Override
+    public Collection<Item> getItems(String userId) {
+        if (!isNumeric(userId)) {
+            throw new ValidationException("UserId не корректный");
+        }
+        long id = Long.parseLong(userId);
+        if (userStorage.getUsers().containsKey(id)) {
+
+            return itemStorage.findAll(id);
+        }
+        throw new NotFoundException("Пользователь с Id = " + id + " не существует");
     }
 
     @Override
     public Optional<Item> getItem(Long itemId) {
-        return Optional.empty();
+
+        return itemStorage.findById(itemId);
     }
 
     @Override
     public Optional<Item> create(Item item, String userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
-        if (!isNumeric(userId))
-        {
+        if (!isNumeric(userId)) {
             throw new ValidationException("UserId не корректный");
         }
         long id = Long.parseLong(userId);
@@ -56,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
             return Optional.of(itemStored);
         }
         throw new NotFoundException("Пользователь с Id = " + id + " не существует");
-       }
+    }
 
     @Override
     public void delete(Long itemId) {
@@ -66,18 +94,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Optional<Item> update(UpdateItemDto item, String itemId, String userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
-        if (!isNumeric(itemId) || !isNumeric(userId)  )
-        {
+        if (!isNumeric(itemId) || !isNumeric(userId)) {
             throw new IncorrectParameterException("Данные не корректны");
         }
-        Optional<Item> currentItem =  itemStorage.findById(Long.parseLong(itemId));
-        if (currentItem.isEmpty())
-        {
-            throw new NotFoundException("Item c id "+ itemId + "не найден");
+        Optional<Item> currentItem = itemStorage.findById(Long.parseLong(itemId));
+        if (currentItem.isEmpty()) {
+            throw new NotFoundException("Item c id " + itemId + "не найден");
         }
-        if (currentItem.get().getOwner().getId() != Long.parseLong(userId))
-        {
-            throw new NotFoundException("Пользователь c id "+ userId + "не является владельцем Item с id " + itemId);
+        if (currentItem.get().getOwner().getId() != Long.parseLong(userId)) {
+            throw new NotFoundException("Пользователь c id " + userId + "не является владельцем Item с id " + itemId);
         }
         Item updateItem = currentItem.get();
         if (item.getName() != null)
@@ -89,17 +114,5 @@ public class ItemServiceImpl implements ItemService {
         final Item itemUpdated = itemStorage.update(updateItem);
         log.info("Updated item: {}", itemUpdated);
         return Optional.of(itemUpdated);
-    }
-
-    public static boolean isNumeric(String strNum) {
-        if (strNum == null) {
-            return false;
-        }
-        try {
-            long d = Long.parseLong(strNum);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
     }
 }

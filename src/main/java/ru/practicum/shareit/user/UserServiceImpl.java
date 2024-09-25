@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.Collection;
@@ -17,16 +16,27 @@ import java.util.Optional;
 @Getter
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private final UserStorage userStorage;
+
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            long d = Long.parseLong(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public Collection<User> getUsers() {
         return userStorage.findAll();
     }
-
 
     @Override
     public Optional<User> getUser(final String userId) {
@@ -35,11 +45,11 @@ public class UserServiceImpl implements UserService{
         return userStorage.findById(Long.parseLong(userId));
     }
 
-
     @Override
     public Optional<User> getUserByEmail(final String email) {
         return userStorage.findByEmail(email);
     }
+
     @Override
     public Optional<User> createUser(final User user) {
         Objects.requireNonNull(user, "Cannot create user: is null");
@@ -53,18 +63,16 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<User>  updateUser(final User user, final String userId) {
+    public Optional<User> updateUser(final User user, final String userId) {
         Objects.requireNonNull(user, "Cannot update user: is null");
-        if (!isNumeric(userId))
-        {
+        if (!isNumeric(userId)) {
             throw new ValidationException("UserId не корректный");
         }
         user.setId(Long.parseLong(userId));
         if (userStorage.getUsers().containsKey(user.getId())) {
             Optional<User> u = getUserByEmail(user.getEmail());
             User currentUser = userStorage.getUsers().get(user.getId());
-            if (u.isPresent() && u.get() != currentUser)
-            {
+            if (u.isPresent() && u.get() != currentUser) {
                 return Optional.empty();
             }
             if (user.getName() == null)
@@ -81,17 +89,5 @@ public class UserServiceImpl implements UserService{
     public void delete(String userId) {
         if (isNumeric(userId))
             userStorage.delete(Long.parseLong(userId));
-    }
-
-    public static boolean isNumeric(String strNum) {
-        if (strNum == null) {
-            return false;
-        }
-        try {
-            long d = Long.parseLong(strNum);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
     }
 }

@@ -30,8 +30,6 @@ public class ErrorHandler {
     }
 
 
-
-
     //400
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -61,6 +59,7 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
     //500
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
