@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.IncorrectParameterException;
+import ru.practicum.shareit.exception.NotFoundException;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> createUser(final User user) {
+    public User createUser(final User user) {
         Objects.requireNonNull(user, "Cannot create user: is null");
         Optional<User> userWithEmail = getUserByEmail(user.getEmail());
         if (userWithEmail.isPresent()) {
@@ -45,28 +47,28 @@ public class UserServiceImpl implements UserService {
         }
         final User userStored = userStorage.save(user);
         log.info("Created new user: {}", userStored);
-        return Optional.of(userStored);
+        return userStored;
     }
 
     @Override
-    public Optional<User> updateUser(final User user, final Long userId) {
+    public User updateUser(final User user, final Long userId) {
         Objects.requireNonNull(user, "Cannot update user: is null");
         if (userId == null)
-            return Optional.empty();
+            throw new IncorrectParameterException("Данные не корректны");
         user.setId(userId);
-        if (userStorage.getUsers().containsKey(user.getId())) {
+        if (userStorage.getUsers().containsKey(userId)) {
             Optional<User> u = getUserByEmail(user.getEmail());
-            User currentUser = userStorage.getUsers().get(user.getId());
+            User currentUser = userStorage.getUsers().get(userId);
             if (u.isPresent() && u.get() != currentUser) {
-                return Optional.empty();
+                throw new ConflictException("Данный email " + user.getEmail() + " уже используется другим пользователем");
             }
             if (user.getName() == null)
                 user.setName(currentUser.getName());
             if (user.getEmail() == null)
                 user.setEmail(currentUser.getEmail());
-            return Optional.of(userStorage.update(user));
+            return userStorage.update(user);
         } else {
-            return Optional.empty();
+            throw new NotFoundException("User c id " + userId + "не найден");
         }
     }
 

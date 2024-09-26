@@ -33,13 +33,13 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ItemDto get(@PathVariable(name = "id") final Long itemId) {
-        log.info("Get item itemId={}", itemId);
+        log.info("Get item itemId = {}", itemId);
         return ItemMapper.mapToDto(itemService.getItem(itemId).get());
     }
 
     @GetMapping
     public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Get items for user{}", userId);
+        log.info("Get items for user userId = {}", userId);
         return itemService.getItems(userId).stream().map(ItemMapper::mapToDto).toList();
     }
 
@@ -47,20 +47,13 @@ public class ItemController {
     @Validated({Marker.OnCreate.class})
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto newItemDto) {
         log.info("Received POST at /items");
-        final Item item = ItemMapper.newItemDtoToItem(newItemDto);
-        final ItemDto itemDto = ItemMapper.mapToDto(itemService.create(item, userId).get());
-        log.info("Responded to POST /items: {}", itemDto);
-        return itemDto;
+        return ItemMapper.mapToDto(itemService.create(ItemMapper.newItemDtoToItem(newItemDto), userId));
     }
 
     @PatchMapping("/{itemId}")
     @Validated({Marker.OnUpdate.class})
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto updateItemDto, @PathVariable final Long itemId) {
         log.info("Received PATCH at /items");
-        final ItemDto itemDto = ItemMapper.mapToDto(itemService.update(updateItemDto, itemId, userId).get());
-        log.info("Responded to PATCH at /items: {}", itemDto);
-        return itemDto;
+        return  ItemMapper.mapToDto(itemService.update(updateItemDto, itemId, userId));
     }
-
-
 }

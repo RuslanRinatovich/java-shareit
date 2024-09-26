@@ -60,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<Item> create(Item item, Long userId) {
+    public Item create(Item item, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
         if (userId == null) {
             throw new ValidationException("UserId не корректный");
@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
             item.setOwner(user);
             final Item itemStored = itemStorage.save(item);
             log.info("Created new item: {}", itemStored);
-            return Optional.of(itemStored);
+            return itemStored;
         }
         throw new NotFoundException("Пользователь с Id = " + userId + " не существует");
     }
@@ -82,21 +82,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<Item> update(NewItemDto item, Long itemId, Long userId) {
+    public Item update(NewItemDto item, Long itemId, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
         if (itemId == null || userId == null) {
             throw new IncorrectParameterException("Данные не корректны");
         }
-        Optional<Item> currentItem = itemStorage.findById(itemId);
-        if (currentItem.isEmpty()) {
-            throw new NotFoundException("Item c id " + itemId + "не найден");
-        }
-        long ownerId = currentItem.get().getOwner().getId();
+        Item updateItem = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException("Item c id " + itemId + "не найден"));
+
+        long ownerId = updateItem.getOwner().getId();
 
         if (!userId.equals(ownerId)) {
             throw new NotFoundException("Пользователь c id " + userId + "не является владельцем Item с id " + itemId);
         }
-        Item updateItem = currentItem.get();
+
         if (item.getName() != null)
             updateItem.setName(item.getName());
         if (item.getDescription() != null)
@@ -105,6 +103,6 @@ public class ItemServiceImpl implements ItemService {
             updateItem.setAvailable(item.getAvailable());
         final Item itemUpdated = itemStorage.update(updateItem);
         log.info("Updated item: {}", itemUpdated);
-        return Optional.of(itemUpdated);
+        return itemUpdated;
     }
 }

@@ -43,26 +43,19 @@ public class UserController {
     public UserDto createUser(@Valid @RequestBody final NewUserDto newUserDto) {
         log.info("Received POST at /users");
         final User user = UserMapper.mapToUser(newUserDto);
-        final UserDto userDto = UserMapper.mapToDto(userService.createUser(user).get());
-        log.info("Responded to POST /users: {}", userDto);
-        return userDto;
+        return UserMapper.mapToDto(userService.createUser(user));
     }
 
     @PatchMapping("/{userId}")
     @Validated({Marker.OnUpdate.class})
     public UserDto updateUser(@Valid @RequestBody final NewUserDto updateUserDto, @PathVariable final Long userId) {
         log.info("Received PATCH at /users");
-        User user = UserMapper.mapToUser(updateUserDto);
-        final UserDto userDto = UserMapper.mapToDto(userService.updateUser(user, userId).get());
-        log.info("Responded to PATCH at /users: {}", userDto);
-        return userDto;
+        return UserMapper.mapToDto(userService.updateUser(UserMapper.mapToUser(updateUserDto), userId));
     }
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable(name = "id") final Long userId) {
         log.info("Received DELETE user userId={}", userId);
         userService.delete(userId);
-        log.info("Responded to DELETE user userId={}", userId);
     }
-
 }

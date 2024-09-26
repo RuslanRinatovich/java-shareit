@@ -11,10 +11,10 @@ public interface UserService {
 
     Optional<User> getUserByEmail(String email);
 
-    Optional<User> createUser(User user);
+    User createUser(User user);
 
     void delete(Long userId);
 
-    Optional<User> updateUser(User user, Long userId);
+    User updateUser(User user, Long userId);
 
 }

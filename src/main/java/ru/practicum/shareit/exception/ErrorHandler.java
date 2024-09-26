@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -7,27 +8,22 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice("ru.practicum.shareit")
+@Slf4j
 public class ErrorHandler {
-    // 500
-
     // 400
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectParameter(final IncorrectParameterException e) {
-        return new ErrorResponse(
-                "Ошибка с входным параметром.",
-                e.getMessage()
-        );
+        log.info("400 {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка с входным параметром.", e.getMessage());
     }
 
     //400
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationExceptions(final MethodArgumentNotValidException e) {
-        return new ErrorResponse(
-                "Ошибка валидации",
-                e.getMessage()
-        );
+        log.info("400 {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
 
@@ -35,6 +31,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final ValidationException e) {
+        log.info("400 {}", e.getMessage(), e);
         return new ErrorResponse(
                 "Ошибка валидации",
                 e.getMessage()
@@ -45,6 +42,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final NotFoundException e) {
+        log.info("404 {}", e.getMessage(), e);
         return new ErrorResponse(
                 "Ошибка с входным параметром.",
                 e.getMessage()
@@ -55,6 +53,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictException(final ConflictException e) {
+        log.info("409 {}", e.getMessage(), e);
         return new ErrorResponse(
                 "Ошибка, нарушение уникальности email",
                 e.getMessage()
@@ -65,6 +64,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleServerError(final InternalServerException e) {
+        log.info("500 {}", e.getMessage(), e);
         return new ErrorResponse(
                 "Ошибка с входным параметром.",
                 e.getMessage()

@@ -13,11 +13,11 @@ public interface ItemService {
 
     Optional<Item> getItem(Long itemId);
 
-    Optional<Item> create(Item item, Long userId);
+    Item create(Item item, Long userId);
 
     void delete(Long itemId);
 
-    Optional<Item> update(NewItemDto item, Long itemId, Long userId);
+    Item update(NewItemDto item, Long itemId, Long userId);
 
 }
 
