@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +17,8 @@ import java.util.Collection;
  */
 @RestController
 @RequestMapping(path = "/items")
+@Slf4j
 public class ItemController {
-    private static final Logger log = LoggerFactory.getLogger(ItemController.class);
     private final ItemService itemService;
 
     public ItemController(ItemService itemService) {
@@ -42,7 +43,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") String userId) {
+    public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Received GET at /items for user{}", userId);
         final Collection<ItemDto> dtos = itemService.getItems(userId).stream().map(ItemMapper::mapToDto).toList();
         log.info("Responded GET at /items for user{}", userId);
@@ -50,7 +51,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") String userId, @Valid @RequestBody final NewItemDto newItemDto) {
+    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto newItemDto) {
         log.info("Received POST at /items");
         final Item item = ItemMapper.newItemDtoToItem(newItemDto);
 
@@ -60,7 +61,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") String userId, @Valid @RequestBody final UpdateItemDto updateItemDto, @PathVariable final String itemId) {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final UpdateItemDto updateItemDto, @PathVariable final Long itemId) {
         log.info("Received PATCH at /items");
         final ItemDto itemDto = ItemMapper.mapToDto(itemService.update(updateItemDto, itemId, userId).get());
         log.info("Responded to PATCH at /items: {}", itemDto);

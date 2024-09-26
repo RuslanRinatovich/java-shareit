@@ -1,13 +1,9 @@
 package ru.practicum.shareit.user;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
-import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -15,22 +11,12 @@ import java.util.Optional;
 
 @Getter
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    @Autowired
     private final UserStorage userStorage;
 
-    public static boolean isNumeric(String strNum) {
-        if (strNum == null) {
-            return false;
-        }
-        try {
-            long d = Long.parseLong(strNum);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
+    public UserServiceImpl(UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
     @Override
@@ -39,10 +25,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUser(final String userId) {
-        if (!isNumeric(userId))
-            return Optional.of(new User());
-        return userStorage.findById(Long.parseLong(userId));
+    public Optional<User> getUser(final Long userId) {
+        if (userId == null)
+            return Optional.empty();
+        return userStorage.findById(userId);
     }
 
     @Override
@@ -63,12 +49,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> updateUser(final User user, final String userId) {
+    public Optional<User> updateUser(final User user, final Long userId) {
         Objects.requireNonNull(user, "Cannot update user: is null");
-        if (!isNumeric(userId)) {
-            throw new ValidationException("UserId не корректный");
-        }
-        user.setId(Long.parseLong(userId));
+        if (userId == null)
+            return Optional.empty();
+        user.setId(userId);
         if (userStorage.getUsers().containsKey(user.getId())) {
             Optional<User> u = getUserByEmail(user.getEmail());
             User currentUser = userStorage.getUsers().get(user.getId());
@@ -86,8 +71,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(String userId) {
-        if (isNumeric(userId))
-            userStorage.delete(Long.parseLong(userId));
+    public void delete(Long userId) {
+        if (userId == null)
+            return;
+        userStorage.delete(userId);
     }
 }

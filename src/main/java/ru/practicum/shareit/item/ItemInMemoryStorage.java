@@ -57,11 +57,11 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public void delete(long id) {
-
+        items.remove(id);
     }
 
     @Override
     public void deleteAll() {
-
+        items.clear();
     }
 }

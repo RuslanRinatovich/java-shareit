@@ -20,11 +20,12 @@ public class ErrorHandler {
         );
     }
 
+    //400
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationExceptions(final MethodArgumentNotValidException e) {
         return new ErrorResponse(
-                "Возникло исключение",
+                "Ошибка валидации",
                 e.getMessage()
         );
     }

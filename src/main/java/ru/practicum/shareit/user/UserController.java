@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable final String userId) {
+    public UserDto getUser(@PathVariable final Long userId) {
         log.info("Received GET at /users/{}", userId);
         final UserDto user = UserMapper.mapToDto(userService.getUser(userId).get());
         log.info("Responded to GET /users/{}: {}", userId, user);
@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@Valid @RequestBody final UpdateUserDto updateUserDto, @PathVariable final String userId) {
+    public UserDto updateUser(@Valid @RequestBody final UpdateUserDto updateUserDto, @PathVariable final Long userId) {
         log.info("Received PATCH at /users");
         User user = UserMapper.updateUserMapToUser(updateUserDto);
         final UserDto userDto = UserMapper.mapToDto(userService.updateUser(user, userId).get());
@@ -60,7 +60,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
 
-    public void deleteUser(@PathVariable(name = "id") final String userId) {
+    public void deleteUser(@PathVariable(name = "id") final Long userId) {
 
         userService.delete(userId);
     }

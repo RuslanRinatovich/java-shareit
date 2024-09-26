@@ -7,17 +7,17 @@ import java.util.Optional;
 
 public interface ItemService {
 
-    Collection<Item> getItems(String userId);
+    Collection<Item> getItems(Long userId);
 
     Collection<Item> search(String text);
 
     Optional<Item> getItem(Long itemId);
 
-    Optional<Item> create(Item item, String userId);
+    Optional<Item> create(Item item, Long userId);
 
     void delete(Long itemId);
 
-    Optional<Item> update(UpdateItemDto item, String itemId, String userId);
+    Optional<Item> update(UpdateItemDto item, Long itemId, Long userId);
 
 }
 

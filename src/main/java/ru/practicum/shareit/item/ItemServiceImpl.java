@@ -2,9 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectParameterException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -21,25 +21,18 @@ import java.util.Optional;
 
 @Getter
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    @Autowired
     private final UserStorage userStorage;
-    @Autowired
+
     private final ItemStorage itemStorage;
 
-    public static boolean isNumeric(String strNum) {
-        if (strNum == null) {
-            return false;
-        }
-        try {
-            long d = Long.parseLong(strNum);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
+    public ItemServiceImpl(UserStorage userStorage, ItemStorage itemStorage) {
+        this.userStorage = userStorage;
+        this.itemStorage = itemStorage;
     }
+
+
 
     @Override
     public Collection<Item> search(String text) {
@@ -51,39 +44,40 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<Item> getItems(String userId) {
-        if (!isNumeric(userId)) {
-            throw new ValidationException("UserId не корректный");
+    public Collection<Item> getItems(Long userId) {
+        if (userId == null) {
+           return new ArrayList<>();
         }
-        long id = Long.parseLong(userId);
-        if (userStorage.getUsers().containsKey(id)) {
 
-            return itemStorage.findAll(id);
+        if (userStorage.getUsers().containsKey(userId)) {
+
+            return itemStorage.findAll(userId);
         }
-        throw new NotFoundException("Пользователь с Id = " + id + " не существует");
+        throw new NotFoundException("Пользователь с Id = " + userId + " не существует");
     }
 
     @Override
     public Optional<Item> getItem(Long itemId) {
-
+        if (itemId == null)
+            return Optional.empty();
         return itemStorage.findById(itemId);
     }
 
     @Override
-    public Optional<Item> create(Item item, String userId) {
+    public Optional<Item> create(Item item, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
-        if (!isNumeric(userId)) {
+        if (userId == null) {
             throw new ValidationException("UserId не корректный");
         }
-        long id = Long.parseLong(userId);
-        if (userStorage.getUsers().containsKey(id)) {
-            User user = userStorage.findById(id).get();
+
+        if (userStorage.getUsers().containsKey(userId)) {
+            User user = userStorage.findById(userId).get();
             item.setOwner(user);
             final Item itemStored = itemStorage.save(item);
             log.info("Created new item: {}", itemStored);
             return Optional.of(itemStored);
         }
-        throw new NotFoundException("Пользователь с Id = " + id + " не существует");
+        throw new NotFoundException("Пользователь с Id = " + userId + " не существует");
     }
 
     @Override
@@ -92,16 +86,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<Item> update(UpdateItemDto item, String itemId, String userId) {
+    public Optional<Item> update(UpdateItemDto item, Long itemId, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
-        if (!isNumeric(itemId) || !isNumeric(userId)) {
+        if (itemId == null || userId == null) {
             throw new IncorrectParameterException("Данные не корректны");
         }
-        Optional<Item> currentItem = itemStorage.findById(Long.parseLong(itemId));
+        Optional<Item> currentItem = itemStorage.findById(itemId);
         if (currentItem.isEmpty()) {
             throw new NotFoundException("Item c id " + itemId + "не найден");
         }
-        if (currentItem.get().getOwner().getId() != Long.parseLong(userId)) {
+        if (currentItem.get().getOwner().getId() != userId) {
             throw new NotFoundException("Пользователь c id " + userId + "не является владельцем Item с id " + itemId);
         }
         Item updateItem = currentItem.get();

@@ -7,14 +7,14 @@ public interface UserService {
 
     Collection<User> getUsers();
 
-    Optional<User> getUser(String id);
+    Optional<User> getUser(Long userId);
 
     Optional<User> getUserByEmail(String email);
 
     Optional<User> createUser(User user);
 
-    void delete(String userId);
+    void delete(Long userId);
 
-    Optional<User> updateUser(User user, String id);
+    Optional<User> updateUser(User user, Long userId);
 
 }
