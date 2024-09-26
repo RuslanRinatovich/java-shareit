@@ -91,7 +91,9 @@ public class ItemServiceImpl implements ItemService {
         if (currentItem.isEmpty()) {
             throw new NotFoundException("Item c id " + itemId + "не найден");
         }
-        if (currentItem.get().getOwner().getId() == (long) userId) {
+        long ownerId = currentItem.get().getOwner().getId();
+
+        if (!userId.equals(ownerId)) {
             throw new NotFoundException("Пользователь c id " + userId + "не является владельцем Item с id " + itemId);
         }
         Item updateItem = currentItem.get();
