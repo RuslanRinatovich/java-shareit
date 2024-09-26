@@ -26,18 +26,14 @@ public class UserController {
 
     @GetMapping
     public Collection<UserDto> getUsers() {
-        log.info("Received GET at /users");
-        Collection<UserDto> dtos = UserMapper.mapToDto(userService.getUsers());
-        log.info("Responded to GET /users: {}", dtos);
-        return dtos;
+        log.info("Get users ");
+        return UserMapper.mapToDto(userService.getUsers());
     }
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable final Long userId) {
-        log.info("Received GET at /users/{}", userId);
-        final UserDto user = UserMapper.mapToDto(userService.getUser(userId).get());
-        log.info("Responded to GET /users/{}: {}", userId, user);
-        return user;
+        log.info("Get user userId={}", userId);
+        return UserMapper.mapToDto(userService.getUser(userId).get());
     }
 
     @PostMapping
@@ -59,10 +55,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-
     public void deleteUser(@PathVariable(name = "id") final Long userId) {
-
+        log.info("Received DELETE user userId={}", userId);
         userService.delete(userId);
+        log.info("Responded to DELETE user userId={}", userId);
     }
 
 }

@@ -27,34 +27,26 @@ public class ItemController {
 
     @GetMapping("/search")
     public Collection<ItemDto> search(@RequestParam(name = "text", required = false) String text) {
-
-        log.info("Received GET at /search with parametr text = {}", text);
-        final Collection<ItemDto> dtos = itemService.search(text.toLowerCase()).stream().map(ItemMapper::mapToDto).toList();
-        log.info("Responded GET at /search with parametr text = {}", text);
-        return dtos;
+        log.info("Search item by text={}", text);
+        return itemService.search(text.toLowerCase()).stream().map(ItemMapper::mapToDto).toList();
     }
 
     @GetMapping("/{id}")
     public ItemDto get(@PathVariable(name = "id") final Long itemId) {
-        log.info("Received GET at /items/{}", itemId);
-        if (itemId == null) throw new IncorrectParameterException("Id должен быть указан");
-        log.info("Responded GET at /items/{}", itemId);
+        log.info("Get item itemId={}", itemId);
         return ItemMapper.mapToDto(itemService.getItem(itemId).get());
     }
 
     @GetMapping
     public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Received GET at /items for user{}", userId);
-        final Collection<ItemDto> dtos = itemService.getItems(userId).stream().map(ItemMapper::mapToDto).toList();
-        log.info("Responded GET at /items for user{}", userId);
-        return dtos;
+        log.info("Get items for user{}", userId);
+        return itemService.getItems(userId).stream().map(ItemMapper::mapToDto).toList();
     }
 
     @PostMapping
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto newItemDto) {
         log.info("Received POST at /items");
         final Item item = ItemMapper.newItemDtoToItem(newItemDto);
-
         final ItemDto itemDto = ItemMapper.mapToDto(itemService.create(item, userId).get());
         log.info("Responded to POST /items: {}", itemDto);
         return itemDto;
