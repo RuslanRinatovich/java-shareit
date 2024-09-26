@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.item.dto.UpdateItemDto;
+import ru.practicum.shareit.item.dto.NewItemDto;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public interface ItemService {
 
     void delete(Long itemId);
 
-    Optional<Item> update(UpdateItemDto item, Long itemId, Long userId);
+    Optional<Item> update(NewItemDto item, Long itemId, Long userId);
 
 }
 

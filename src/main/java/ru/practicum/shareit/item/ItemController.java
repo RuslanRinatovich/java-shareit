@@ -2,19 +2,19 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.IncorrectParameterException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemDto;
-import ru.practicum.shareit.item.dto.UpdateItemDto;
+import ru.practicum.shareit.util.Marker;
 
 import java.util.Collection;
 
 /**
  * TODO Sprint add-controllers.
  */
+
+@Validated
 @RestController
 @RequestMapping(path = "/items")
 @Slf4j
@@ -44,6 +44,7 @@ public class ItemController {
     }
 
     @PostMapping
+    @Validated({Marker.OnCreate.class})
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto newItemDto) {
         log.info("Received POST at /items");
         final Item item = ItemMapper.newItemDtoToItem(newItemDto);
@@ -53,7 +54,8 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final UpdateItemDto updateItemDto, @PathVariable final Long itemId) {
+    @Validated({Marker.OnUpdate.class})
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto updateItemDto, @PathVariable final Long itemId) {
         log.info("Received PATCH at /items");
         final ItemDto itemDto = ItemMapper.mapToDto(itemService.update(updateItemDto, itemId, userId).get());
         log.info("Responded to PATCH at /items: {}", itemDto);

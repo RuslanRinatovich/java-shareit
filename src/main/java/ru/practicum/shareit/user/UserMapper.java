@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 
 import ru.practicum.shareit.user.dto.NewUserDto;
-import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.ArrayList;
@@ -34,10 +33,5 @@ public final class UserMapper {
         return user;
     }
 
-    public static User updateUserMapToUser(UpdateUserDto dto) {
-        User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        return user;
-    }
+
 }

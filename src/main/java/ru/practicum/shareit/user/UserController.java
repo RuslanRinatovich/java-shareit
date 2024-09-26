@@ -4,16 +4,18 @@ package ru.practicum.shareit.user;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.NewUserDto;
-import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.util.Marker;
 
 import java.util.Collection;
 
 /**
  * TODO Sprint add-controllers.
  */
+@Validated
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
@@ -37,6 +39,7 @@ public class UserController {
     }
 
     @PostMapping
+    @Validated({Marker.OnCreate.class})
     public UserDto createUser(@Valid @RequestBody final NewUserDto newUserDto) {
         log.info("Received POST at /users");
         final User user = UserMapper.mapToUser(newUserDto);
@@ -46,9 +49,10 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@Valid @RequestBody final UpdateUserDto updateUserDto, @PathVariable final Long userId) {
+    @Validated({Marker.OnUpdate.class})
+    public UserDto updateUser(@Valid @RequestBody final NewUserDto updateUserDto, @PathVariable final Long userId) {
         log.info("Received PATCH at /users");
-        User user = UserMapper.updateUserMapToUser(updateUserDto);
+        User user = UserMapper.mapToUser(updateUserDto);
         final UserDto userDto = UserMapper.mapToDto(userService.updateUser(user, userId).get());
         log.info("Responded to PATCH at /users: {}", userDto);
         return userDto;

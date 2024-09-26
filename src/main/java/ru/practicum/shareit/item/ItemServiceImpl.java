@@ -1,17 +1,13 @@
 package ru.practicum.shareit.item;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectParameterException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.UpdateItemDto;
+import ru.practicum.shareit.item.dto.NewItemDto;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
@@ -86,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<Item> update(UpdateItemDto item, Long itemId, Long userId) {
+    public Optional<Item> update(NewItemDto item, Long itemId, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
         if (itemId == null || userId == null) {
             throw new IncorrectParameterException("Данные не корректны");
