@@ -8,6 +8,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.NewItemDto;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
@@ -19,11 +20,11 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    private final UserStorage userStorage;
+    private final UserRepository userStorage;
 
-    private final ItemStorage itemStorage;
+    private final ItemRepository itemStorage;
 
-    public ItemServiceImpl(UserStorage userStorage, ItemStorage itemStorage) {
+    public ItemServiceImpl(UserRepository userStorage, ItemRepository itemStorage) {
         this.userStorage = userStorage;
         this.itemStorage = itemStorage;
     }
@@ -34,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
     public Collection<Item> search(String text) {
         if ((text == null) || text.isBlank() || text.isEmpty())
             return new ArrayList<>();
-        return itemStorage.getItems().values().stream().filter(item ->
+        return itemStorage.findAll().stream().filter(item ->
                 (item.getName().toLowerCase().contains(text) || item.getDescription().toLowerCase().contains(text))
                         && item.getAvailable()).toList();
     }
@@ -45,9 +46,9 @@ public class ItemServiceImpl implements ItemService {
            return new ArrayList<>();
         }
 
-        if (userStorage.getUsers().containsKey(userId)) {
+        if (userStorage.existsById(userId)) {
 
-            return itemStorage.findAll(userId);
+            return itemStorage.findAllByOwner(userStorage.findById(userId).get());
         }
         throw new NotFoundException("Пользователь с Id = " + userId + " не существует");
     }
@@ -66,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("UserId не корректный");
         }
 
-        if (userStorage.getUsers().containsKey(userId)) {
+        if (userStorage.existsById(userId)) {
             User user = userStorage.findById(userId).get();
             item.setOwner(user);
             final Item itemStored = itemStorage.save(item);
@@ -101,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
             updateItem.setDescription(item.getDescription());
         if (item.getAvailable() != null)
             updateItem.setAvailable(item.getAvailable());
-        final Item itemUpdated = itemStorage.update(updateItem);
+        final Item itemUpdated = itemStorage.save(updateItem);
         log.info("Updated item: {}", itemUpdated);
         return itemUpdated;
     }
