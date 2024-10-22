@@ -9,15 +9,20 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface BookingService {
- //   Booking getBooking(Long id, Long userId);
-    Booking create(NewBookingDto booking, Long userId);
 
-//    Collection<Booking> getUserBookings(long userId, BookingStatusFilter filter, int from, int size);
+
+
+    Booking getBooking(final Long id, final Long userId);
+
+    Booking create(NewBookingDto booking, Long userId);
+ //   Booking applyBooking(long id, boolean isApproved, long userId);
+
+    Collection<Booking> getUserBookings(long userId, String filter, int from, int size);
 //
 //    Collection<Booking> getOwnerBookings(long userId, BookingStatusFilter filter, int from, int size);
 //
-//    Collection<Booking> findAllCompleteBookingByUserIdAndItemId(long userId, long itemId);
+ //   Collection<Booking> findAllCompleteBookingByUserIdAndItemId(long userId, long itemId);
 //
-//    Booking applyBooking(long id, boolean isApproved, long userId);
+
 
 }

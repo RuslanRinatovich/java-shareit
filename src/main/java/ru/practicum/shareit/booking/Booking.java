@@ -42,4 +42,5 @@ public class Booking {
     @NotNull
     private Status status;
 
+
 }

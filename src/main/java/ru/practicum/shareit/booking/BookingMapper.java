@@ -7,6 +7,12 @@ import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemDto;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public final class BookingMapper {
     public static BookingDto mapToDto(Booking booking) {
@@ -25,6 +31,13 @@ public final class BookingMapper {
         return dto;
     }
 
+    public static Collection<BookingDto> mapToDto(Collection<Booking> bookings) {
+        List<BookingDto> dtos = new ArrayList<>();
+        for (Booking booking : bookings) {
+            dtos.add(mapToDto(booking));
+        }
+        return dtos;
+    }
 
     public static Booking newBookingDtoToBooking(NewBookingDto newBookingDto, Long userId) {
         Booking booking = new Booking();

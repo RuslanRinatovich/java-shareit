@@ -17,6 +17,7 @@ import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,12 +68,37 @@ class BookingServiceImpl implements BookingService {
         return createdBooking;
     }
 
-//    @Override
-//    public Booking getBooking(final Long id, final Long userId) {
-//        return repository.findByIdAndBookerIdOrItemOwnerId(id, userId).orElseThrow(
-//                () -> new NotFoundException(Booking.class, id)
-//        );
-//    }
+    @Override
+    public Booking getBooking(final Long id, final Long userId) {
+        Optional<User> user = userService.getUser(userId);
+        if (user.isEmpty())
+        {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+        return repository.findByIdAndBookerIdOrIdAndItemOwnerId(id, userId, id, userId).orElseThrow(
+                () -> new NotFoundException("Бронь не найдена")
+        );
+    }
+    @Override
+    public List<Booking> getUserBookings(final long userId, final String state, final int from,
+                                         final int size
+    ) {
+        final Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        final Pageable page = PageRequest.of(from / size, size, sort);
+        BookingStatusFilter filter = BookingStatusFilter.valueOf(state);
+        return switch (filter) {
+            case ALL -> repository.findByBookerId(userId, page);
+            case CURRENT -> repository.findByBookerIdStartLessThenCurrentDateAndEndGreaterThanEqualCurrentDate(userId, LocalDateTime.now(), page);
+//            case PAST -> repository.findPastByBookerId(userId, page);
+//            case FUTURE -> repository.findFutureByBookerId(userId, page);
+//            case WAITING -> repository.findAllByBookerIdAndStatus(userId, Status.WAITING, page);
+//            case REJECTED -> repository.findAllByBookerIdAndStatus(userId, Status.REJECTED, page);
+            case null -> throw new AssertionError();
+        };
+    }
+
+
+
 
 
 }
