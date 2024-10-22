@@ -14,7 +14,7 @@ public interface ItemService {
     Optional<Item> getItem(Long itemId);
 
     Item create(Item item, Long userId);
-
+    boolean existsById(long id);
     void delete(Long itemId);
 
     Item update(NewItemDto item, Long itemId, Long userId);

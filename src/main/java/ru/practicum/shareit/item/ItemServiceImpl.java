@@ -1,8 +1,11 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.IncorrectParameterException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -19,16 +22,13 @@ import java.util.Optional;
 @Getter
 @Service
 @Slf4j
+@Validated
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final UserRepository userStorage;
 
     private final ItemRepository itemStorage;
-
-    public ItemServiceImpl(UserRepository userStorage, ItemRepository itemStorage) {
-        this.userStorage = userStorage;
-        this.itemStorage = itemStorage;
-    }
-
 
 
     @Override
@@ -54,6 +54,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public boolean existsById(final long id) {
+        return itemStorage.existsById(id);
+    }
+
+    @Override
     public Optional<Item> getItem(Long itemId) {
         if (itemId == null)
             return Optional.empty();
@@ -61,12 +66,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item create(Item item, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
         if (userId == null) {
             throw new ValidationException("UserId не корректный");
         }
-
         if (userStorage.existsById(userId)) {
             User user = userStorage.findById(userId).get();
             item.setOwner(user);
