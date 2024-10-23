@@ -37,6 +37,6 @@ public class Item {
     @JoinColumn(name = "request_id")
     private ItemRequest request;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
     private Set<Comment> comments;
 }

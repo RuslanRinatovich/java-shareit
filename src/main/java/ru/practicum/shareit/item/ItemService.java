@@ -11,7 +11,7 @@ public interface ItemService  {
 
     Collection<Item> getItems(Long userId);
 
-    Collection<ItemsDto> getItemsWithBookingAndComments(Long userId, Long itemId);
+    Collection<ItemsDto> getItemsWithBookingAndComments(Long userId);
 
     Collection<Item> search(String text);
 

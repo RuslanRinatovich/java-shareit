@@ -20,6 +20,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Service
@@ -65,17 +66,25 @@ public class ItemServiceImpl implements ItemService {
         for (Item i: itemRepository.findAll()) {
 
             Long itemId = i.getId();
+            Set<Comment> comments = new HashSet<>(commentRepository.findAllById(Collections.singleton(itemId)));
+
+            Booking last = null;
+            Booking next = null;
+
             if (i.getOwner().getId().equals(userId))
             {
-                Optional<Booking> currentBooking = bookingRepository.findCurrentItemBooking(itemId);
-                Optional<Booking> futureBooking = bookingRepository.findCurrentItemBooking(itemId);
+                Optional<Booking> lastBooking = bookingRepository.findCurrentItemBooking(itemId);
+                Optional<Booking> nextBooking = bookingRepository.findCurrentItemBooking(itemId);
+                if (lastBooking.isPresent())
+                    last = lastBooking.get();
+
+                if (nextBooking.isPresent())
+                    next = nextBooking.get();
             }
-            List<Comment> comments = commentRepository.findAllById(Collections.singleton(itemId));
+
+                result.add(ItemMapper.mapToItemsDto(i, last, next, comments));
         }
-
-
-
-        return null;
+        return result;
     }
 
     @Override

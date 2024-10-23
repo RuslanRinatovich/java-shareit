@@ -45,9 +45,9 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Collection<ItemsDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Get items for user userId = {}", userId);
-        return itemService.getItems(userId).stream().map(ItemMapper::mapToDto).toList();
+        return itemService.getItemsWithBookingAndComments(userId);
     }
 
     @PostMapping
