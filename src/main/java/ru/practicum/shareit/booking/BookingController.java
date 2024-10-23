@@ -52,14 +52,25 @@ public class BookingController {
     }
 
     @GetMapping
-    public Collection<BookingDto> getUserBookings(
+    public Collection<BookingDto> getBookerBookings(
             @RequestHeader("X-Sharer-User-Id") final long userId,
-            @RequestParam(defaultValue = "ALL") final String state,
+            @RequestParam(defaultValue = "ALL") final String status,
             @RequestParam(defaultValue = "0") @PositiveOrZero final int from,
             @RequestParam(defaultValue = "10") @Positive final int size
     ) {
         log.info("Get bookings for userId={}", userId);
-        return BookingMapper.mapToDto(bookingService.getUserBookings(userId, state, from, size));
+        return BookingMapper.mapToDto(bookingService.getBookerBookings(userId, status, from, size));
+    }
+
+    @GetMapping("/owner")
+    public Collection<BookingDto> getOwnerBookings(
+            @RequestHeader("X-Sharer-User-Id") final long userId,
+            @RequestParam(defaultValue = "ALL") final String status,
+            @RequestParam(defaultValue = "0") @PositiveOrZero final int from,
+            @RequestParam(defaultValue = "10") @Positive final int size
+    ) {
+        log.info("Get bookings for owner userId={}", userId);
+        return BookingMapper.mapToDto(bookingService.getOwnerBookings(userId, status, from, size));
     }
 
 

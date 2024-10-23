@@ -18,6 +18,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,21 +81,54 @@ class BookingServiceImpl implements BookingService {
         );
     }
     @Override
-    public List<Booking> getUserBookings(final long userId, final String state, final int from,
-                                         final int size
-    ) {
+    public List<Booking> getBookerBookings(final long userId, final String status, final int from,  final int size ) {
         final Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable page = PageRequest.of(from / size, size, sort);
-        BookingStatusFilter filter = BookingStatusFilter.valueOf(state);
-        return switch (filter) {
-            case ALL -> repository.findByBookerId(userId, page);
-            case CURRENT -> repository.findByBookerIdStartLessThenCurrentDateAndEndGreaterThanEqualCurrentDate(userId, LocalDateTime.now(), page);
-//            case PAST -> repository.findPastByBookerId(userId, page);
-//            case FUTURE -> repository.findFutureByBookerId(userId, page);
-//            case WAITING -> repository.findAllByBookerIdAndStatus(userId, Status.WAITING, page);
-//            case REJECTED -> repository.findAllByBookerIdAndStatus(userId, Status.REJECTED, page);
-            case null -> throw new AssertionError();
-        };
+        BookingStatusFilter filter = BookingStatusFilter.valueOf(status);
+        switch (filter) {
+            case ALL:
+                return repository.findByBookerId(userId, page);
+            case CURRENT:
+                return repository.findCurrentBookingsForBooker(userId, page);
+            case PAST:
+                return repository.findPastBookingsForBooker(userId, page);
+            case FUTURE:
+                return repository.findFutureBookingsForBooker(userId, page);
+            case WAITING:
+                return repository.findBookingsForBookerWithStatus(userId, Status.WAITING, page);
+            case REJECTED:
+                return repository.findBookingsForBookerWithStatus(userId, Status.REJECTED, page);
+            case null:
+                throw new AssertionError();
+        }
+    }
+
+    @Override
+    public List<Booking> getOwnerBookings(final long userId, final String status, final int from,  final int size ) {
+
+        if (!itemService.existByOwnerId(userId)) {
+            throw new NotFoundException("Вы не являетесь владельцем ни одного из товаров");
+        }
+        final Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        final Pageable page = PageRequest.of(from / size, size, sort);
+        BookingStatusFilter filter = BookingStatusFilter.valueOf(status);
+//        switch (filter) {
+//            case ALL:
+//                return repository.findByItemOwnerId(userId, page);
+//            case CURRENT:
+//                return repository.findCurrentBookingsForOwner(userId, page);
+//            case PAST:
+//                return repository.findPastBookingsForOwner(userId, page);
+//            case FUTURE:
+//                return repository.findFutureBookingsForOwner(userId, page);
+//            case WAITING:
+//                return repository.findBookingsForOwnerWithStatus(userId, Status.WAITING, page);
+//            case REJECTED:
+//                return repository.findBookingsForOwnerWithStatus(userId, Status.REJECTED, page);
+//            case null:
+//                throw new AssertionError();
+//        }
+        return null;
     }
 
 

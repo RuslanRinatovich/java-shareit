@@ -7,4 +7,5 @@ import java.util.Collection;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
     Collection<Item> findAllByOwner(User user);
+    boolean existsByOwnerId(long userId);
 }

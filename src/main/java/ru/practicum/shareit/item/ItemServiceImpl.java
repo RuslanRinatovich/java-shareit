@@ -88,6 +88,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public boolean existByOwnerId(long userId) {
+        return itemStorage.existsByOwnerId(userId);
+    }
+
+    @Override
     public Item update(NewItemDto item, Long itemId, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
         if (itemId == null || userId == null) {
