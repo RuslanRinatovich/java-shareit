@@ -4,8 +4,12 @@ package ru.practicum.shareit.item;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "items", schema = "public")
@@ -25,7 +29,7 @@ public class Item {
     private Boolean available;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
     private User owner;
 
@@ -33,4 +37,6 @@ public class Item {
     @JoinColumn(name = "request_id")
     private ItemRequest request;
 
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    private Set<Comment> comments;
 }

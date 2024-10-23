@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS public.items (
 	item_id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
 	"name" varchar(255) NOT NULL,
 	description varchar NOT NULL,
-	is_available bit(1) NULL,
+	available bool NULL,
 	owner_id int4 NOT NULL,
 	request_id int4 NULL,
 	CONSTRAINT newtable_pk PRIMARY KEY (item_id),

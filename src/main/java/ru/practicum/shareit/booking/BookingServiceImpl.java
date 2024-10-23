@@ -28,7 +28,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
-class BookingServiceImpl implements BookingService {
+public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository repository;
     private final UserService userService;
@@ -151,5 +151,9 @@ class BookingServiceImpl implements BookingService {
         final Booking updatedBooking = repository.save(updated);
         log.info("Changed status of booking id = {} to {}", id, updatedBooking.getStatus());
         return updatedBooking;
+    }
+    @Override
+    public List<Booking> findCompletedBookingForUserAndItem(long userId, long itemId) {
+        return repository.findCompletedBookingForUserAndItem(userId, itemId);
     }
 }

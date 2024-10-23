@@ -24,8 +24,8 @@ public interface BookingService {
 //
 //    Collection<Booking> getOwnerBookings(long userId, BookingStatusFilter filter, int from, int size);
 //
- //   Collection<Booking> findAllCompleteBookingByUserIdAndItemId(long userId, long itemId);
-//
+    List<Booking> findCompletedBookingForUserAndItem(long userId, long itemId);
+
 
 
 }

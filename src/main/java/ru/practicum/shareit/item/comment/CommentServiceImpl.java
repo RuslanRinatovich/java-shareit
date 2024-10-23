@@ -1,4 +1,4 @@
-package ru.practicum.shareit.comment;
+package ru.practicum.shareit.item.comment;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.comment.dto.NewCommentDto;
+import ru.practicum.shareit.item.comment.dto.NewCommentDto;
+import ru.practicum.shareit.exception.ValidationException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,13 +28,17 @@ public class CommentServiceImpl implements CommentService{
     @Transactional
     public Comment createComment(NewCommentDto newCommentDto, Long userId, Long itemId) {
         Objects.requireNonNull(newCommentDto, "Cannot create comment: is null");
-        final List<Booking> bookings = bookingService.findAllCompleteBookingByUserIdAndItemId(
-                comment.getAuthor().getId(), comment.getItem().getId());
+        final List<Booking> bookings = bookingService.findCompletedBookingForUserAndItem(userId, itemId);
         if (bookings.isEmpty()) {
-            throw new ValidationException("item.id", "no complete bookings of item by user");
+            throw new ValidationException("no completed bookings of item by user");
         }
         final Booking booking = bookings.getFirst();
-        comment.getAuthor().setName(booking.getBooker().getName());
+        Comment comment = new Comment();
+        comment.setCreated(LocalDateTime.now());
+        comment.setText(newCommentDto.getText());
+        comment.setAuthor(booking.getBooker());
+        comment.setItem(booking.getItem());
+
         final Comment createdComment = repository.save(comment);
         log.info("Created comment with id = {}: {}", createdComment.getId(), createdComment);
         return createdComment;
