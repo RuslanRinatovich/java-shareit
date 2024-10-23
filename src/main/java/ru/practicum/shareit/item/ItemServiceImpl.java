@@ -12,7 +12,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.NewItemDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;

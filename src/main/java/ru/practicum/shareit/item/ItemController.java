@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.NewCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemDto;
 import ru.practicum.shareit.util.Marker;
@@ -48,6 +50,19 @@ public class ItemController {
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto newItemDto) {
         log.info("Received POST at /items");
         return ItemMapper.mapToDto(itemService.create(ItemMapper.newItemDtoToItem(newItemDto), userId));
+    }
+
+    @PostMapping("/{id}/comment")
+    public CommentDto createComment(
+            @RequestHeader("X-Sharer-User-Id") final long userId,
+            @PathVariable final long id,
+            @RequestBody @Valid final NewCommentDto newCommentDto
+    ) {
+        log.info("Received POST at comment");
+        final Comment comment = commentMapper.mapToComment(userId, id, commentCreateDto);
+        final CommentRetrieveDto dto = commentMapper.mapToDto(commentService.addComment(comment));
+        logResponse(request, dto);
+        return dto;
     }
 
     @PatchMapping("/{itemId}")

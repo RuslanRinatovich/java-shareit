@@ -15,6 +15,9 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     Collection<Booking> findAllByBooker(User user);
+    List<Booking> findByItemOwnerId(Long bookerId, Pageable page);
+
+    Optional<Booking> findByIdAndItemOwnerId(Long id, Long ownerId);
     Optional<Booking> findByIdAndBookerIdOrIdAndItemOwnerId(Long id, Long bookerId, Long id1, Long itemOwnerId);
 
     List<Booking> findByBookerId(Long bookerId, Pageable page);
@@ -36,5 +39,24 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findBookingsForBookerWithStatus(@Param("userId") long userId, @Param("status") Status status, Pageable page);
 
 
-    List<Booking> findByItemOwnerId(Long bookerId, Pageable page);
+
+
+    @Query("select b from Booking b join fetch b.booker join fetch b.item join b.item.owner "
+            + "where b.item.owner.id = :userId and b.start <= current_timestamp and b.end > current_timestamp")
+    List<Booking> findCurrentBookingsForOwner(@Param("userId") long userId, Pageable page);
+
+    @Query("select b from Booking b join fetch b.booker join fetch b.item join b.item.owner "
+            + "where b.item.owner.id = :userId and b.end <= current_timestamp")
+    List<Booking> findPastBookingsForOwner(@Param("userId") long userId, Pageable page);
+
+    @Query("select b from Booking b join fetch b.booker join fetch b.item join b.item.owner "
+            + "where b.item.owner.id = :userId and b.start > current_timestamp")
+    List<Booking> findFutureBookingsForOwner(@Param("userId") long userId, Pageable page);
+
+    @Query("select b from Booking b join fetch b.booker join fetch b.item join b.item.owner "
+            + "where b.item.owner.id = :userId and b.status = :status")
+    List<Booking> findBookingsForOwnerWithStatus(@Param("userId") long userId, @Param("status") Status status, Pageable page);
+
+
+
 }

@@ -73,5 +73,14 @@ public class BookingController {
         return BookingMapper.mapToDto(bookingService.getOwnerBookings(userId, status, from, size));
     }
 
+    @PatchMapping("/{id}")
+    public BookingDto changeBookingStatus(
+            @RequestHeader("X-Sharer-User-Id") final long userId,
+            @PathVariable final long id,
+            @RequestParam final boolean approved
+    ) {
+        log.info("Patch bookings for owner userId={}", userId);
+        return BookingMapper.mapToDto(bookingService.changeBookingStatus(id, approved, userId));
+    }
 
 }

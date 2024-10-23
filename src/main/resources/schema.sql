@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS public."comments" (
 	"text" varchar NOT NULL,
 	item_id int4 NOT NULL,
 	author_id int4 NOT NULL,
+	created timestamp NOT NULL,
 	CONSTRAINT comments_pk PRIMARY KEY (comment_id),
 	CONSTRAINT comments_items_fk FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE SET NULL ON UPDATE CASCADE,
 	CONSTRAINT comments_users_fk FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE

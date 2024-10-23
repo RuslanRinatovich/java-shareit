@@ -112,27 +112,44 @@ class BookingServiceImpl implements BookingService {
         final Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable page = PageRequest.of(from / size, size, sort);
         BookingStatusFilter filter = BookingStatusFilter.valueOf(status);
-//        switch (filter) {
-//            case ALL:
-//                return repository.findByItemOwnerId(userId, page);
-//            case CURRENT:
-//                return repository.findCurrentBookingsForOwner(userId, page);
-//            case PAST:
-//                return repository.findPastBookingsForOwner(userId, page);
-//            case FUTURE:
-//                return repository.findFutureBookingsForOwner(userId, page);
-//            case WAITING:
-//                return repository.findBookingsForOwnerWithStatus(userId, Status.WAITING, page);
-//            case REJECTED:
-//                return repository.findBookingsForOwnerWithStatus(userId, Status.REJECTED, page);
-//            case null:
-//                throw new AssertionError();
-//        }
-        return null;
+        switch (filter) {
+            case ALL:
+                return repository.findByItemOwnerId(userId, page);
+            case CURRENT:
+                return repository.findCurrentBookingsForOwner(userId, page);
+            case PAST:
+                return repository.findPastBookingsForOwner(userId, page);
+            case FUTURE:
+                return repository.findFutureBookingsForOwner(userId, page);
+            case WAITING:
+                return repository.findBookingsForOwnerWithStatus(userId, Status.WAITING, page);
+            case REJECTED:
+                return repository.findBookingsForOwnerWithStatus(userId, Status.REJECTED, page);
+            case null:
+                throw new AssertionError();
+        }
     }
 
+    @Override
+    @Transactional
+    public Booking changeBookingStatus(final long id, final boolean isApproved, final long userId) {
+        Optional<Booking> booking = repository.findByIdAndItemOwnerId(id, userId);
 
+        if (booking.isEmpty())
+        {
+            throw new ValidationException("Брони для пользвоателя не обнаружено");
+        }
+        if (!userService.existsById(userId)) {
+            throw new ValidationException("Вы не являетесь владельцем ни одного из товаров");
+        }
 
-
-
+        if (!Status.WAITING.equals(booking.get().getStatus())) {
+            throw new ValidationException("Бронь должна иметь статус " + Status.WAITING);
+        }
+        Booking updated = booking.get();
+        updated.setStatus(isApproved ? Status.APPROVED : Status.REJECTED);
+        final Booking updatedBooking = repository.save(updated);
+        log.info("Changed status of booking id = {} to {}", id, updatedBooking.getStatus());
+        return updatedBooking;
+    }
 }
