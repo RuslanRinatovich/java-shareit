@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.comment.dto.NewCommentDto;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,8 +24,8 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     @Transactional
-    public Comment createComment(final Comment comment) {
-        Objects.requireNonNull(comment, "Cannot create comment: is null");
+    public Comment createComment(NewCommentDto newCommentDto, Long userId, Long itemId) {
+        Objects.requireNonNull(newCommentDto, "Cannot create comment: is null");
         final List<Booking> bookings = bookingService.findAllCompleteBookingByUserIdAndItemId(
                 comment.getAuthor().getId(), comment.getItem().getId());
         if (bookings.isEmpty()) {

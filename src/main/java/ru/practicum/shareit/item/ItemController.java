@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.CommentMapper;
+import ru.practicum.shareit.comment.CommentService;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.NewCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -23,8 +25,10 @@ import java.util.Collection;
 public class ItemController {
     private final ItemService itemService;
 
-    public ItemController(ItemService itemService) {
+    private final CommentService commentService;
+    public ItemController(ItemService itemService, CommentService commentService) {
         this.itemService = itemService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/search")
@@ -59,10 +63,7 @@ public class ItemController {
             @RequestBody @Valid final NewCommentDto newCommentDto
     ) {
         log.info("Received POST at comment");
-        final Comment comment = commentMapper.mapToComment(userId, id, commentCreateDto);
-        final CommentRetrieveDto dto = commentMapper.mapToDto(commentService.addComment(comment));
-        logResponse(request, dto);
-        return dto;
+        return CommentMapper.mapToDto(commentService.createComment(newCommentDto, userId, id));
     }
 
     @PatchMapping("/{itemId}")
