@@ -46,9 +46,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Collection<Item> getItems(Long userId) {
         if (userId == null) {
-           return new ArrayList<>();
+            return new ArrayList<>();
         }
 
         if (userRepository.existsById(userId)) {
@@ -59,11 +60,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public List<ItemsDto> getItemsWithBookingAndComments(Long userId) {
-        if (userId == null )
+        if (userId == null)
             return new ArrayList<>();
         List<ItemsDto> result = new ArrayList<>();
-        for (Item i: itemRepository.findAll()) {
+        for (Item i : itemRepository.findAllByOwner(userRepository.findById(userId).get())) {
 
             Long itemId = i.getId();
             Set<Comment> comments = new HashSet<>(commentRepository.findAllById(Collections.singleton(itemId)));
@@ -71,10 +73,9 @@ public class ItemServiceImpl implements ItemService {
             Booking last = null;
             Booking next = null;
 
-            if (i.getOwner().getId().equals(userId))
-            {
-                Optional<Booking> lastBooking = bookingRepository.findCurrentItemBooking(itemId);
-                Optional<Booking> nextBooking = bookingRepository.findCurrentItemBooking(itemId);
+            if (i.getOwner().getId().equals(userId)) {
+                Optional<Booking> lastBooking = bookingRepository.findLastItemBooking(itemId);
+                Optional<Booking> nextBooking = bookingRepository.findNextItemBooking(itemId);
                 if (lastBooking.isPresent())
                     last = lastBooking.get();
 
@@ -82,9 +83,37 @@ public class ItemServiceImpl implements ItemService {
                     next = nextBooking.get();
             }
 
-                result.add(ItemMapper.mapToItemsDto(i, last, next, comments));
+            result.add(ItemMapper.mapToItemsDto(i, last, next, comments));
         }
         return result;
+    }
+
+    @Override
+    @Transactional
+    public ItemsDto getItemWithBookingAndComments(Long userId, Long itemId) {
+        Objects.requireNonNull(userId, "Cannot load booking: userId is null");
+        Objects.requireNonNull(itemId, "Cannot load booking: itemId is null");
+        Optional<Item> item = itemRepository.findById(itemId);
+        if (item.isEmpty()) {
+            throw new NotFoundException("Item с Id = " + itemId + " не существует");
+        }
+
+        Set<Comment> comments = item.get().getComments();
+
+        Booking last = null;
+        Booking next = null;
+
+        if (item.get().getOwner().getId().equals(userId)) {
+            Optional<Booking> lastBooking = bookingRepository.findLastItemBooking(itemId);
+            Optional<Booking> nextBooking = bookingRepository.findNextItemBooking(itemId);
+            if (lastBooking.isPresent())
+                last = lastBooking.get();
+
+            if (nextBooking.isPresent())
+                next = nextBooking.get();
+        }
+
+        return ItemMapper.mapToItemsDto(item.get(), last, next, comments);
     }
 
     @Override

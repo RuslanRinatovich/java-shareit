@@ -39,9 +39,9 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto get(@PathVariable(name = "id") final Long itemId) {
+    public ItemsDto get(@RequestHeader("X-Sharer-User-Id") final long userId, @PathVariable(name = "id") final Long itemId) {
         log.info("Get item itemId = {}", itemId);
-        return ItemMapper.mapToDto(itemService.getItem(itemId).get());
+        return itemService.getItemWithBookingAndComments(userId, itemId);
     }
 
     @GetMapping

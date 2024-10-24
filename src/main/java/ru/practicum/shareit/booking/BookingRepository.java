@@ -60,10 +60,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             + "where b.item.owner.id = :userId and b.status = :status")
     List<Booking> findBookingsForOwnerWithStatus(@Param("userId") long userId, @Param("status") Status status, Pageable page);
 
-    @Query("select b from Booking b join fetch b.booker join fetch b.item where b.item.id = :id " +
-            "and b.start <= current_timestamp and b.end > current_timestamp")
-    Optional<Booking> findCurrentItemBooking(@Param("id") long id);
-    @Query("select b from Booking b join fetch b.booker join fetch b.item where b.item.id = :id " +
-            "and b.start > current_timestamp")
-    Optional<Booking> findFutureItemBooking(@Param("id") long id);
+    @Query("select b from Booking b join fetch b.item where b.item.id = :id " +
+            "and b.start <= current_timestamp and b.status ='APPROVED' order by b.start limit 1" )
+    Optional<Booking> findLastItemBooking(@Param("id") long id);
+    @Query("select b from Booking b join fetch b.item where b.item.id = :id " +
+            "and b.start > current_timestamp and b.status ='APPROVED' order by b.start limit 1" )
+    Optional<Booking> findNextItemBooking(@Param("id") long id);
 }

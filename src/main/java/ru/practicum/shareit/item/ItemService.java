@@ -12,7 +12,7 @@ public interface ItemService  {
     Collection<Item> getItems(Long userId);
 
     Collection<ItemsDto> getItemsWithBookingAndComments(Long userId);
-
+    ItemsDto getItemWithBookingAndComments(Long userId, Long itemId);
     Collection<Item> search(String text);
 
     Optional<Item> getItem(Long itemId);

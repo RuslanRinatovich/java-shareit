@@ -34,8 +34,10 @@ public final class ItemMapper {
         dto.setAvailable(item.getAvailable());
         dto.setOwnerId(item.getOwner().getId());
         dto.setComments(commentSet.stream().map(CommentMapper::mapToDto).collect(Collectors.toSet()));
-        dto.setLastBooking(mapBookingToItemBookingDto(last));
-        dto.setNextBooking(mapBookingToItemBookingDto(next));
+        if (last != null)
+            dto.setLastBooking(mapBookingToItemBookingDto(last));
+        if (next != null)
+            dto.setNextBooking(mapBookingToItemBookingDto(next));
         return dto;
     }
 
