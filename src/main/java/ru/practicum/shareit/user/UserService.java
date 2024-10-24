@@ -13,6 +13,8 @@ public interface UserService {
 
     User createUser(User user);
 
+    boolean existsById(long id);
+
     void delete(Long userId);
 
     User updateUser(User user, Long userId);
