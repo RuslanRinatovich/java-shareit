@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS requests CASCADE;
 DROP TABLE IF EXISTS bookings CASCADE;
 DROP TABLE IF EXISTS comments CASCADE;
 
-CREATE TABLE IF NOT EXISTS public.users (
+CREATE TABLE IF NOT EXISTS users (
 	user_id BIGINT GENERATED ALWAYS AS IDENTITY,
 	"name" varchar(255) NOT NULL,
 	email varchar NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 -- DROP TABLE requests;
 
-CREATE TABLE IF NOT EXISTS public.requests (
+CREATE TABLE IF NOT EXISTS requests (
 	request_id BIGINT GENERATED ALWAYS AS IDENTITY,
 	description varchar NOT NULL,
 	requestor_id BIGINT NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.requests (
 
 -- DROP TABLE items;
 
-CREATE TABLE IF NOT EXISTS public.items (
+CREATE TABLE IF NOT EXISTS items (
 	item_id BIGINT GENERATED ALWAYS AS IDENTITY,
 	"name" varchar(255) NOT NULL,
 	description varchar NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS public.items (
 
 -- DROP TABLE booking;
 
-CREATE TABLE IF NOT EXISTS public.bookings (
+CREATE TABLE IF NOT EXISTS bookings (
 	booking_id BIGINT GENERATED ALWAYS AS IDENTITY,
 	start_date timestamp NOT NULL,
 	end_date timestamp NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
 
 -- DROP TABLE "comments";
 
-CREATE TABLE IF NOT EXISTS public."comments" (
+CREATE TABLE IF NOT EXISTS "comments" (
 	comment_id BIGINT GENERATED ALWAYS AS IDENTITY,
 	"text" varchar NOT NULL,
 	item_id BIGINT NOT NULL,

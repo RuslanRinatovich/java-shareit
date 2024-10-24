@@ -5,7 +5,7 @@ import lombok.Data;
 import ru.practicum.shareit.user.User;
 
 @Entity
-@Table(name = "requests", schema = "public")
+@Table(name = "requests")
 @Data
 public class ItemRequest {
     @Id

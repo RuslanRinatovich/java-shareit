@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.User;
 import java.util.Set;
 
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "items")
 @Data
 @EqualsAndHashCode(of = "id")
 public class Item {

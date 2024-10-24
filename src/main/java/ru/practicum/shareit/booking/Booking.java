@@ -10,7 +10,7 @@ import ru.practicum.shareit.user.User;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "bookings", schema = "public")
+@Table(name = "bookings")
 @Data
 @EqualsAndHashCode(of = "id")
 public class Booking {
