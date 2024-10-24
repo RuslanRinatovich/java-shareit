@@ -8,9 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.exception.IncorrectParameterException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemsDto;
@@ -144,10 +142,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item update(NewItemDto item, Long itemId, Long userId) {
-        Objects.requireNonNull(item, "Cannot create item: is null");
-        if (itemId == null || userId == null) {
-            throw new IncorrectParameterException("Данные не корректны");
-        }
+        Objects.requireNonNull(item, "Cannot update item: is null");
+        Objects.requireNonNull(userId, "Cannot update item: userId is null");
+        Objects.requireNonNull(itemId, "Cannot update item: itemId is null");
         Item updateItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item c id " + itemId + "не найден"));
 
         long ownerId = updateItem.getOwner().getId();
