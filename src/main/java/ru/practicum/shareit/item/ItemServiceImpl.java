@@ -91,17 +91,13 @@ public class ItemServiceImpl implements ItemService {
     public ItemsDto getItemWithBookingAndComments(Long userId, Long itemId) {
         Objects.requireNonNull(userId, "Cannot load booking: userId is null");
         Objects.requireNonNull(itemId, "Cannot load booking: itemId is null");
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (item.isEmpty()) {
-            throw new NotFoundException("Item с Id = " + itemId + " не существует");
-        }
-
-        Set<Comment> comments = item.get().getComments();
-
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item с Id = " + itemId + " не существует"));
+        Set<Comment> comments = item.getComments();
         Booking last = null;
         Booking next = null;
 
-        if (item.get().getOwner().getId().equals(userId)) {
+        if (item.getOwner().getId().equals(userId)) {
             Optional<Booking> lastBooking = bookingRepository.findLastItemBooking(itemId);
             Optional<Booking> nextBooking = bookingRepository.findNextItemBooking(itemId);
             if (lastBooking.isPresent())
@@ -111,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
                 next = nextBooking.get();
         }
 
-        return ItemMapper.mapToItemsDto(item.get(), last, next, comments);
+        return ItemMapper.mapToItemsDto(item, last, next, comments);
     }
 
     @Override
@@ -130,17 +126,13 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public Item create(Item item, Long userId) {
         Objects.requireNonNull(item, "Cannot create item: is null");
-        if (userId == null) {
-            throw new ValidationException("UserId не корректный");
-        }
-        if (userRepository.existsById(userId)) {
-            User user = userRepository.findById(userId).get();
-            item.setOwner(user);
-            final Item itemStored = itemRepository.save(item);
-            log.info("Created new item: {}", itemStored);
-            return itemStored;
-        }
-        throw new NotFoundException("Пользователь с Id = " + userId + " не существует");
+        Objects.requireNonNull(userId, "Cannot load user: userId is null");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с Id = " + userId + " не существует"));
+        item.setOwner(user);
+        final Item itemStored = itemRepository.save(item);
+        log.info("Created new item: {}", itemStored);
+        return itemStored;
     }
 
 
