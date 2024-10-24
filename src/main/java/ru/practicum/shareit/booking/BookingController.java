@@ -26,7 +26,6 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    @Validated({Marker.OnCreate.class})
     public BookingDto createBooking(
             @RequestHeader("X-Sharer-User-Id") final Long userId,
             @RequestBody @Valid final NewBookingDto newBookingDto

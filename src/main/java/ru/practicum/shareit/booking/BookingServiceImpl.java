@@ -20,7 +20,6 @@ import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @Validated
@@ -42,15 +41,12 @@ public class BookingServiceImpl implements BookingService {
         if (!newBookingDto.getEnd().isAfter(newBookingDto.getStart())) {
             throw new ValidationException("end should be after start");
         }
-        Optional<User> user = userService.getUser(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("user with id = " + userId + " didn't find");
-        }
-        Optional<Item> item = itemService.getItem(newBookingDto.getItemId());
-        if (item.isEmpty()) {
-            throw new NotFoundException("item with id = " + newBookingDto.getItemId() + " didn't find");
-        }
-        if (!item.get().getAvailable()) {
+        User user = userService.getUser(userId)
+                .orElseThrow(() -> new NotFoundException("user with id = " + userId + " didn't find"));
+
+        Item item = itemService.getItem(newBookingDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("item with id = " + newBookingDto.getItemId() + " didn't find"));
+        if (!item.getAvailable()) {
             throw new ValidationException("item with id = " + newBookingDto.getItemId() + " unavailable");
         }
 
@@ -58,8 +54,8 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(Status.WAITING);
         booking.setEnd(newBookingDto.getEnd());
         booking.setStart(newBookingDto.getStart());
-        booking.setItem(item.get());
-        booking.setBooker(user.get());
+        booking.setItem(item);
+        booking.setBooker(user);
         userService.getUser(booking.getBooker().getId());
         final Booking createdBooking = repository.save(booking);
         log.info("created booking with id = {}: {}", createdBooking.getId(), createdBooking);
@@ -68,10 +64,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking getBooking(final Long id, final Long userId) {
-        Optional<User> user = userService.getUser(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("user with id = " + userId + " didn't find");
-        }
+        User user = userService.getUser(userId)
+                .orElseThrow(() -> new NotFoundException("user with id = " + userId + " didn't find"));
         return repository.findByIdAndBookerIdOrIdAndItemOwnerId(id, userId, id, userId).orElseThrow(
                 () -> new NotFoundException("booking didn't find")
         );
@@ -82,22 +76,14 @@ public class BookingServiceImpl implements BookingService {
         final Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable page = PageRequest.of(from / size, size, sort);
         BookingStatusFilter filter = BookingStatusFilter.valueOf(status);
-        switch (filter) {
-            case ALL:
-                return repository.findByBookerId(userId, page);
-            case CURRENT:
-                return repository.findCurrentBookingsForBooker(userId, page);
-            case PAST:
-                return repository.findPastBookingsForBooker(userId, page);
-            case FUTURE:
-                return repository.findFutureBookingsForBooker(userId, page);
-            case WAITING:
-                return repository.findBookingsForBookerWithStatus(userId, Status.WAITING, page);
-            case REJECTED:
-                return repository.findBookingsForBookerWithStatus(userId, Status.REJECTED, page);
-            case null:
-                throw new AssertionError();
-        }
+        return switch (filter) {
+            case ALL -> repository.findByBookerId(userId, page);
+            case CURRENT -> repository.findCurrentBookingsForBooker(userId, page);
+            case PAST -> repository.findPastBookingsForBooker(userId, page);
+            case FUTURE -> repository.findFutureBookingsForBooker(userId, page);
+            case WAITING -> repository.findBookingsForBookerWithStatus(userId, Status.WAITING, page);
+            case REJECTED -> repository.findBookingsForBookerWithStatus(userId, Status.REJECTED, page);
+        };
     }
 
     @Override
@@ -109,40 +95,28 @@ public class BookingServiceImpl implements BookingService {
         final Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable page = PageRequest.of(from / size, size, sort);
         BookingStatusFilter filter = BookingStatusFilter.valueOf(status);
-        switch (filter) {
-            case ALL:
-                return repository.findByItemOwnerId(userId, page);
-            case CURRENT:
-                return repository.findCurrentBookingsForOwner(userId, page);
-            case PAST:
-                return repository.findPastBookingsForOwner(userId, page);
-            case FUTURE:
-                return repository.findFutureBookingsForOwner(userId, page);
-            case WAITING:
-                return repository.findBookingsForOwnerWithStatus(userId, Status.WAITING, page);
-            case REJECTED:
-                return repository.findBookingsForOwnerWithStatus(userId, Status.REJECTED, page);
-            case null:
-                throw new AssertionError();
-        }
+        return switch (filter) {
+            case ALL -> repository.findByItemOwnerId(userId, page);
+            case CURRENT -> repository.findCurrentBookingsForOwner(userId, page);
+            case PAST -> repository.findPastBookingsForOwner(userId, page);
+            case FUTURE -> repository.findFutureBookingsForOwner(userId, page);
+            case WAITING -> repository.findBookingsForOwnerWithStatus(userId, Status.WAITING, page);
+            case REJECTED -> repository.findBookingsForOwnerWithStatus(userId, Status.REJECTED, page);
+        };
     }
 
     @Override
     @Transactional
     public Booking changeBookingStatus(final long id, final boolean isApproved, final long userId) {
-        Optional<Booking> booking = repository.findByIdAndItemOwnerId(id, userId);
-
-        if (booking.isEmpty()) {
-            throw new ForbiddenException("bookings for user with id = " + userId + " didn't find");
-        }
+        Booking updated = repository.findByIdAndItemOwnerId(id, userId)
+                .orElseThrow(() -> new ForbiddenException("bookings for user with id = " + userId + " didn't find"));
         if (!userService.existsById(userId)) {
             throw new ForbiddenException("your are not owner the item");
         }
-
-        if (!Status.WAITING.equals(booking.get().getStatus())) {
+        if (!Status.WAITING.equals(updated.getStatus())) {
             throw new ValidationException("booking should be have status " + Status.WAITING);
         }
-        Booking updated = booking.get();
+
         updated.setStatus(isApproved ? Status.APPROVED : Status.REJECTED);
         final Booking updatedBooking = repository.save(updated);
         log.info("Changed status of booking id = {} to {}", id, updatedBooking.getStatus());
