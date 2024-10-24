@@ -146,13 +146,10 @@ public class ItemServiceImpl implements ItemService {
         Objects.requireNonNull(userId, "Cannot update item: userId is null");
         Objects.requireNonNull(itemId, "Cannot update item: itemId is null");
         Item updateItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item c id " + itemId + "не найден"));
-
         long ownerId = updateItem.getOwner().getId();
-
         if (!userId.equals(ownerId)) {
             throw new NotFoundException("Пользователь c id " + userId + "не является владельцем Item с id " + itemId);
         }
-
         if (item.getName() != null)
             updateItem.setName(item.getName());
         if (item.getDescription() != null)
