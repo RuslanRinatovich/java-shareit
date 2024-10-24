@@ -44,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Collection<Item> getItems(Long userId) {
         if (userId == null) {
             return new ArrayList<>();
@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemsDto> getItemsWithBookingAndComments(Long userId) {
         if (userId == null)
             return new ArrayList<>();
@@ -143,12 +143,9 @@ public class ItemServiceImpl implements ItemService {
         throw new NotFoundException("Пользователь с Id = " + userId + " не существует");
     }
 
-    @Override
-    public void delete(Long itemId) {
-
-    }
 
     @Override
+    @Transactional
     public boolean existByOwnerId(long userId) {
         return itemRepository.existsByOwnerId(userId);
     }

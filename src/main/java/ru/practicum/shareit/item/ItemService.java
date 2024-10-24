@@ -22,8 +22,6 @@ public interface ItemService {
 
     boolean existsById(long id);
 
-    void delete(Long itemId);
-
     boolean existByOwnerId(long userId);
 
     Item update(NewItemDto item, Long itemId, Long userId);
