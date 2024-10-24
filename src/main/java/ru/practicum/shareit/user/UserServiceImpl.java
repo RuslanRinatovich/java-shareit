@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository) {
         this.repository = userRepository;
     }
+
     @Override
     @Transactional
     public User createUser(final User user) {
@@ -40,6 +41,7 @@ public class UserServiceImpl implements UserService {
             return Optional.empty();
         return repository.findById(userId);
     }
+
     @Override
     public Collection<User> getUsers() {
         return repository.findAll();
@@ -54,9 +56,6 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getUserByEmail(final String email) {
         return Optional.ofNullable(repository.findOneByEmail(email));
     }
-
-
-
 
 
     @Override

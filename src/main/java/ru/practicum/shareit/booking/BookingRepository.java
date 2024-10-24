@@ -4,20 +4,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.User;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    Collection<Booking> findAllByBooker(User user);
+
     List<Booking> findByItemOwnerId(Long bookerId, Pageable page);
 
-      Optional<Booking> findByIdAndItemOwnerId(Long id, Long ownerId);
+    Optional<Booking> findByIdAndItemOwnerId(Long id, Long ownerId);
+
     Optional<Booking> findByIdAndBookerIdOrIdAndItemOwnerId(Long id, Long bookerId, Long id1, Long itemOwnerId);
 
     List<Booking> findByBookerId(Long bookerId, Pageable page);
@@ -61,9 +57,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findBookingsForOwnerWithStatus(@Param("userId") long userId, @Param("status") Status status, Pageable page);
 
     @Query("select b from Booking b join fetch b.item where b.item.id = :id " +
-            "and b.start <= current_timestamp and b.status ='APPROVED' order by b.start limit 1" )
+            "and b.start <= current_timestamp and b.status ='APPROVED' order by b.start limit 1")
     Optional<Booking> findLastItemBooking(@Param("id") long id);
+
     @Query("select b from Booking b join fetch b.item where b.item.id = :id " +
-            "and b.start > current_timestamp and b.status ='APPROVED' order by b.start limit 1" )
+            "and b.start > current_timestamp and b.status ='APPROVED' order by b.start limit 1")
     Optional<Booking> findNextItemBooking(@Param("id") long id);
 }

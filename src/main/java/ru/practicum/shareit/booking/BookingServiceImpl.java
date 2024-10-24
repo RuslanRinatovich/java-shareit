@@ -33,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final UserService userService;
     private final ItemService itemService;
+
     @Override
     @Transactional
     public Booking create(final NewBookingDto newBookingDto, Long userId) {
@@ -43,17 +44,14 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("end should be after start");
         }
         Optional<User> user = userService.getUser(userId);
-        if (user.isEmpty())
-        {
+        if (user.isEmpty()) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
         Optional<Item> item = itemService.getItem(newBookingDto.getItemId());
-        if(item.isEmpty())
-        {
+        if (item.isEmpty()) {
             throw new NotFoundException("Item с id = " + newBookingDto.getItemId() + " не найден");
         }
-        if(!item.get().getAvailable())
-        {
+        if (!item.get().getAvailable()) {
             throw new ValidationException("Item не доступен");
         }
 
@@ -72,16 +70,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking getBooking(final Long id, final Long userId) {
         Optional<User> user = userService.getUser(userId);
-        if (user.isEmpty())
-        {
+        if (user.isEmpty()) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
         return repository.findByIdAndBookerIdOrIdAndItemOwnerId(id, userId, id, userId).orElseThrow(
                 () -> new NotFoundException("Бронь не найдена")
         );
     }
+
     @Override
-    public List<Booking> getBookerBookings(final long userId, final String status, final int from,  final int size ) {
+    public List<Booking> getBookerBookings(final long userId, final String status, final int from, final int size) {
         final Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable page = PageRequest.of(from / size, size, sort);
         BookingStatusFilter filter = BookingStatusFilter.valueOf(status);
@@ -104,7 +102,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getOwnerBookings(final long userId, final String status, final int from,  final int size ) {
+    public List<Booking> getOwnerBookings(final long userId, final String status, final int from, final int size) {
 
         if (!itemService.existByOwnerId(userId)) {
             throw new NotFoundException("Вы не являетесь владельцем ни одного из товаров");
@@ -135,8 +133,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking changeBookingStatus(final long id, final boolean isApproved, final long userId) {
         Optional<Booking> booking = repository.findByIdAndItemOwnerId(id, userId);
 
-        if (booking.isEmpty())
-        {
+        if (booking.isEmpty()) {
             throw new ValidationException("Брони для пользвоателя не обнаружено");
         }
         if (!userService.existsById(userId)) {
@@ -152,6 +149,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Changed status of booking id = {} to {}", id, updatedBooking.getStatus());
         return updatedBooking;
     }
+
     @Override
     public List<Booking> findCompletedBookingForUserAndItem(long userId, long itemId) {
         return repository.findCompletedBookingForUserAndItem(userId, itemId);

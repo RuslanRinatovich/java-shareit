@@ -10,12 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.util.Marker;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * TODO Sprint add-bookings.
