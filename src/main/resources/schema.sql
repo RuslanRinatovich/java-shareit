@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS comments CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
 	user_id BIGINT GENERATED ALWAYS AS IDENTITY,
-	"name" varchar(255) NOT NULL,
+	name varchar(255) NOT NULL,
 	email varchar NOT NULL,
 	CONSTRAINT users_pk PRIMARY KEY (user_id),
 	CONSTRAINT users_unique UNIQUE (email)
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS requests (
 
 CREATE TABLE IF NOT EXISTS items (
 	item_id BIGINT GENERATED ALWAYS AS IDENTITY,
-	"name" varchar(255) NOT NULL,
+	name varchar(255) NOT NULL,
 	description varchar NOT NULL,
 	available bool NULL,
 	owner_id BIGINT NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 
 CREATE TABLE IF NOT EXISTS "comments" (
 	comment_id BIGINT GENERATED ALWAYS AS IDENTITY,
-	"text" varchar NOT NULL,
+	text varchar NOT NULL,
 	item_id BIGINT NOT NULL,
 	author_id BIGINT NOT NULL,
 	created timestamp NOT NULL,
