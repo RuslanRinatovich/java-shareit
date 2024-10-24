@@ -27,6 +27,7 @@ public class ItemController {
     private final ItemService itemService;
 
     private final CommentService commentService;
+
     public ItemController(ItemService itemService, CommentService commentService) {
         this.itemService = itemService;
         this.commentService = commentService;
@@ -71,6 +72,6 @@ public class ItemController {
     @Validated({Marker.OnUpdate.class})
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody final NewItemDto updateItemDto, @PathVariable final Long itemId) {
         log.info("Received PATCH at /items");
-        return  ItemMapper.mapToDto(itemService.update(updateItemDto, itemId, userId));
+        return ItemMapper.mapToDto(itemService.update(updateItemDto, itemId, userId));
     }
 }

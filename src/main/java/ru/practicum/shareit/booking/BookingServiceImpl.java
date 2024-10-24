@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
@@ -17,8 +18,6 @@ import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking create(final NewBookingDto newBookingDto, Long userId) {
-        Objects.requireNonNull(newBookingDto, "Cannot create booking: is null");
+        Objects.requireNonNull(newBookingDto, "Cannot create booking: booking is null");
         Objects.requireNonNull(newBookingDto.getItemId(), "Cannot create booking: itemId is null");
         Objects.requireNonNull(userId, "Cannot create booking: booker is null");
         if (!newBookingDto.getEnd().isAfter(newBookingDto.getStart())) {
@@ -45,14 +44,14 @@ public class BookingServiceImpl implements BookingService {
         }
         Optional<User> user = userService.getUser(userId);
         if (user.isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+            throw new NotFoundException("user with id = " + userId + " didn't find");
         }
         Optional<Item> item = itemService.getItem(newBookingDto.getItemId());
         if (item.isEmpty()) {
-            throw new NotFoundException("Item с id = " + newBookingDto.getItemId() + " не найден");
+            throw new NotFoundException("item with id = " + newBookingDto.getItemId() + " didn't find");
         }
         if (!item.get().getAvailable()) {
-            throw new ValidationException("Item не доступен");
+            throw new ValidationException("item with id = " + newBookingDto.getItemId() + " unavailable");
         }
 
         Booking booking = new Booking();
@@ -63,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(user.get());
         userService.getUser(booking.getBooker().getId());
         final Booking createdBooking = repository.save(booking);
-        log.info("Created booking with id = {}: {}", createdBooking.getId(), createdBooking);
+        log.info("created booking with id = {}: {}", createdBooking.getId(), createdBooking);
         return createdBooking;
     }
 
@@ -71,10 +70,10 @@ public class BookingServiceImpl implements BookingService {
     public Booking getBooking(final Long id, final Long userId) {
         Optional<User> user = userService.getUser(userId);
         if (user.isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+            throw new NotFoundException("user with id = " + userId + " didn't find");
         }
         return repository.findByIdAndBookerIdOrIdAndItemOwnerId(id, userId, id, userId).orElseThrow(
-                () -> new NotFoundException("Бронь не найдена")
+                () -> new NotFoundException("booking didn't find")
         );
     }
 
@@ -105,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getOwnerBookings(final long userId, final String status, final int from, final int size) {
 
         if (!itemService.existByOwnerId(userId)) {
-            throw new NotFoundException("Вы не являетесь владельцем ни одного из товаров");
+            throw new ForbiddenException("your are not owner the item");
         }
         final Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable page = PageRequest.of(from / size, size, sort);
@@ -134,14 +133,14 @@ public class BookingServiceImpl implements BookingService {
         Optional<Booking> booking = repository.findByIdAndItemOwnerId(id, userId);
 
         if (booking.isEmpty()) {
-            throw new ValidationException("Брони для пользвоателя не обнаружено");
+            throw new ForbiddenException("bookings for user with id = " + userId + " didn't find");
         }
         if (!userService.existsById(userId)) {
-            throw new ValidationException("Вы не являетесь владельцем ни одного из товаров");
+            throw new ForbiddenException("your are not owner the item");
         }
 
         if (!Status.WAITING.equals(booking.get().getStatus())) {
-            throw new ValidationException("Бронь должна иметь статус " + Status.WAITING);
+            throw new ValidationException("booking should be have status " + Status.WAITING);
         }
         Booking updated = booking.get();
         updated.setStatus(isApproved ? Status.APPROVED : Status.REJECTED);

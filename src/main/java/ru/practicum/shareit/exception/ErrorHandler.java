@@ -55,7 +55,7 @@ public class ErrorHandler {
     public ErrorResponse handleConflictException(final ConflictException e) {
         log.info("409 {}", e.getMessage(), e);
         return new ErrorResponse(
-                "Ошибка, нарушение уникальности email",
+                "Ошибка, нарушение уникальности",
                 e.getMessage()
         );
     }
@@ -71,5 +71,12 @@ public class ErrorHandler {
         );
     }
 
+    //403
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenExceptions(final ForbiddenException e) {
+        log.info("403 {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка доступа к ресурсу", e.getMessage());
+    }
 
 }

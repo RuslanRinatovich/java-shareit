@@ -1,9 +1,9 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.IncorrectParameterException;
 import ru.practicum.shareit.exception.NotFoundException;

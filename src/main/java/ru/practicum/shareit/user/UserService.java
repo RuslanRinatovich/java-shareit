@@ -12,6 +12,7 @@ public interface UserService {
     Optional<User> getUserByEmail(String email);
 
     User createUser(User user);
+
     boolean existsById(long id);
 
     void delete(Long userId);
