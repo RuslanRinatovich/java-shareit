@@ -1,24 +1,11 @@
---create types
---DO $$
---BEGIN
---    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'request_state') THEN
---        CREATE TYPE public.request_state AS ENUM (
---        	'WAITING',
---        	'APPROVED',
---        	'REJECTED',
---        	'CANCELED');
---    END IF;
---    --more types here...
---END$$;
-
--- public.users определение
-
--- Drop table
-
--- DROP TABLE users;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS items CASCADE;
+DROP TABLE IF EXISTS requests CASCADE;
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS comments CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.users (
-	user_id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
+	user_id BIGINT BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	"name" varchar(255) NOT NULL,
 	email varchar NOT NULL,
 	CONSTRAINT users_pk PRIMARY KEY (user_id),
@@ -33,9 +20,9 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- DROP TABLE requests;
 
 CREATE TABLE IF NOT EXISTS public.requests (
-	request_id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
+	request_id BIGINT BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	description varchar NOT NULL,
-	requestor_id int4 NOT NULL,
+	requestor_id BIGINT NOT NULL,
 	CONSTRAINT requests_pk PRIMARY KEY (request_id),
 	CONSTRAINT requests_users_fk FOREIGN KEY (requestor_id) REFERENCES users(user_id) ON DELETE SET NULL ON UPDATE SET NULL
 );
@@ -48,12 +35,12 @@ CREATE TABLE IF NOT EXISTS public.requests (
 -- DROP TABLE items;
 
 CREATE TABLE IF NOT EXISTS public.items (
-	item_id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
+	item_id BIGINT BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	"name" varchar(255) NOT NULL,
 	description varchar NOT NULL,
 	available bool NULL,
-	owner_id int4 NOT NULL,
-	request_id int4 NULL,
+	owner_id BIGINT NOT NULL,
+	request_id BIGINT NULL,
 	CONSTRAINT newtable_pk PRIMARY KEY (item_id),
 	CONSTRAINT items_requests_fk FOREIGN KEY (request_id) REFERENCES requests(request_id) ON DELETE SET NULL ON UPDATE CASCADE,
 	CONSTRAINT items_users_fk FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -67,11 +54,11 @@ CREATE TABLE IF NOT EXISTS public.items (
 -- DROP TABLE booking;
 
 CREATE TABLE IF NOT EXISTS public.bookings (
-	booking_id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
+	booking_id BIGINT BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	start_date timestamp NOT NULL,
 	end_date timestamp NOT NULL,
-	item_id int4 NOT NULL,
-	booker_id int4 NOT NULL,
+	item_id BIGINT NOT NULL,
+	booker_id BIGINT NOT NULL,
 	status varchar(10) NOT NULL,
 	CONSTRAINT status CHECK (status IN ('WAITING', 'APPROVED', 'REJECTED')),
 	CONSTRAINT booking_pk PRIMARY KEY (booking_id),
@@ -87,10 +74,10 @@ CREATE TABLE IF NOT EXISTS public.bookings (
 -- DROP TABLE "comments";
 
 CREATE TABLE IF NOT EXISTS public."comments" (
-	comment_id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
+	comment_id BIGINT GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
 	"text" varchar NOT NULL,
-	item_id int4 NOT NULL,
-	author_id int4 NOT NULL,
+	item_id BIGINT NOT NULL,
+	author_id BIGINT NOT NULL,
 	created timestamp NOT NULL,
 	CONSTRAINT comments_pk PRIMARY KEY (comment_id),
 	CONSTRAINT comments_items_fk FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE SET NULL ON UPDATE CASCADE,
